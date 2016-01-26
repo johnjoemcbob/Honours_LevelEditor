@@ -34,6 +34,7 @@ void ofApp::setup()
 	XML_LevelOutput.save( "test.xml" );
 
 	// Init camera
+	ofEnableAlphaBlending();
 	Camera.setupPerspective();
 	Camera.setPosition( ofVec3f( 500, -500, 0 ) );
 	Camera.lookAt( ofVec3f( 0, 0, 0 ) );
@@ -54,6 +55,10 @@ void ofApp::setup()
 
 	// Init test box
 	Box_Test.set( 100 );
+
+	AxisSelected = -1;
+
+	shader.load( "shaders/mouseselection.vert", "shaders/mouseselection.frag" );
 }
 
 //--------------------------------------------------------------
@@ -85,74 +90,33 @@ void ofApp::update()
 //--------------------------------------------------------------
 void ofApp::draw()
 {
-	// Draw for visual
-	DrawFrame();
-
-	// Draw for object selection
-	if ( KeyPressed['q'] )
+	if ( Select )
 	{
-		KeyPressed['q'] = false;
-		// Initialize buffers
-		GLuint buffer[BUF_SIZE] = { 0 };
-		glSelectBuffer( BUF_SIZE, buffer );
-		GLint viewport[4];
-		glGetIntegerv( GL_VIEWPORT, viewport );
-		GLfloat proj_matrix[16];
-		glGetFloatv( GL_PROJECTION_MATRIX, proj_matrix );
+		DrawFrame( true );
 
-		// Switch to selection mode
-		glRenderMode( GL_SELECT );
+		// Read colour of clicked pixel to determine object
+		unsigned char colour[4];
+		glReadPixels( mouseX, ofGetViewportHeight() - mouseY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &colour );
+
+		// Handle selection logic
+		if ( colour[0] < 253 )
 		{
-			// Clear old name listings
-			glInitNames();
-
-			// Projection matrix for moving the selection area
-			glMatrixMode( GL_PROJECTION );
-			glPushMatrix();
-			{
-				// Define selection area
-				glLoadIdentity();
-				gluPickMatrix( (GLdouble) mouseX, (GLdouble) ( ofGetHeight() - mouseY ), 1, 1, viewport );
-				glMultMatrixf( proj_matrix );
-				printf( "%i %i\n\n", mouseX, mouseY );
-
-				// Modelview matrix for displaying the scene
-				glMatrixMode( GL_MODELVIEW );
-				{
-					gluPerspective( Camera.getFov(), Camera.getAspectRatio(), Camera.getNearClip(), Camera.getFarClip() );
-					
-					DrawFrame( true );
-				}
-				glMatrixMode( GL_PROJECTION );
-			}
-			glPopMatrix();
+			// Is an object
+			SelectedNode = colour[0] - 1;
 		}
-		int hits = glRenderMode( GL_RENDER );
-		glMatrixMode( GL_PROJECTION );
-
-		unsigned int i, j;
-		GLuint names, *ptr;
-
-		printf( "hits = %d\n", hits );
-		ptr = (GLuint *) buffer;
-		for ( i = 0; i < hits; i++ )
-		{ /*  for each hit  */
-			names = *ptr;
-			printf( " number of names for this hit = %d\n", names );
-			ptr++;
-			printf( "  z1 is %g;", (float) *ptr / 0x7fffffff ); ptr++;
-			printf( " z2 is %g\n", (float) *ptr / 0x7fffffff ); ptr++;
-			printf( "   names are " );
-			for ( j = 0; j < names; j++ )
-			{ /*  for each name */
-				printf( "%d ", *ptr );
-				ptr++;
-			}
-			printf( "\n" );
+		else
+		{
+			// Is an axis for the currently selected object
+			AxisSelected = colour[0] - 253;
 		}
 
-		glMatrixMode( GL_MODELVIEW );
+		// Flagged as true when the mouse is clicked
+		Select = false;
 	}
+
+	// Draw for visual
+	ofClear( ofColor::black );
+	DrawFrame();
 }
 
 //--------------------------------------------------------------
@@ -185,24 +149,20 @@ void ofApp::mouseMoved( int x, int y )
 //--------------------------------------------------------------
 void ofApp::mouseDragged( int x, int y, int button )
 {
+	if ( MouseReset )
+	{
+		MouseReset = false;
+		LastMouse = ofVec2f( mouseX, mouseY );
+		return;
+	}
+	// Determine the difference in mouse positions since last frame
+	float distx = ( LastMouse.x - mouseX );
+	float disty = ( mouseY - LastMouse.y );
+
 	if ( button == INPUT_CAMERA_ROTATE )
 	{
-		if ( MouseReset )
-		{
-			MouseReset = false;
-			LastMouse = ofVec2f( mouseX, mouseY );
-			return;
-		}
-
 		// Move camera by mouse drag amount
 		float speed = 1.0f / 10;
-		float distx = ( LastMouse.x - mouseX );
-		float disty = ( mouseY - LastMouse.y );
-		//Camera.tilt( disty * speed );
-		//Camera.pan( distx * speed );
-		CameraRotation.x += distx * speed;
-		CameraRotation.y += disty * speed;
-
 		ofVec3f cameraforward = Camera.getLookAtDir();
 		cameraforward.rotate( distx * speed, Camera.getUpDir() );
 		cameraforward.rotate( disty * speed, Camera.getSideDir() );
@@ -220,6 +180,32 @@ void ofApp::mouseDragged( int x, int y, int button )
 		}
 		LastMouse = ofVec2f( mouseX, mouseY );
 	}
+
+	// Move selected object along its axis if it was dragged
+	if ( AxisSelected >= 0 )
+	{
+		ofSpherePrimitive& node = RouteNodes.at( SelectedNode );
+
+		ofVec3f offset;
+		{
+			switch ( AxisSelected )
+			{
+				case 0:
+					offset = node.getLookAtDir() * distx;
+					break;
+				case 1:
+					offset = node.getSideDir() * distx;
+					break;
+				case 2:
+					offset = node.getUpDir() * disty;
+					break;
+				default:
+					break;
+			}
+
+		}
+		node.move( offset );
+	}
 }
 
 //--------------------------------------------------------------
@@ -227,10 +213,7 @@ void ofApp::mousePressed( int x, int y, int button )
 {
 	if ( button == INPUT_SELECT )
 	{
-		for each ( ofSpherePrimitive node in RouteNodes )
-		{
-
-		}
+		Select = true;
 	}
 	if ( button == INPUT_CAMERA_ROTATE )
 	{
@@ -246,6 +229,9 @@ void ofApp::mouseReleased( int x, int y, int button )
 	{
 		ofShowCursor();
 	}
+
+	// No more axis moving
+	AxisSelected = -1;
 }
 
 //--------------------------------------------------------------
@@ -282,28 +268,31 @@ void ofApp::dragEvent( ofDragInfo dragInfo )
 void ofApp::DrawFrame( bool select )
 {
 	// Clear screen to gradient
-	ofDisableLighting();
+	if ( !select )
 	{
-		ofBackgroundGradient( ofColor( 64 ), ofColor( 0 ) );
+		ofDisableLighting();
+		{
+			ofBackgroundGradient( ofColor( 64 ), ofColor( 0 ) );
+		}
+		ofEnableLighting();
 	}
-	ofEnableLighting();
 
 	ofSetColor( 255 );
+	ofFill();
 	ofEnableDepthTest();
 	{
 		ofEnableLighting();
 		Light_Directional.enable();
 		{
 			// Start Projection
-			if ( !select )
-			{
-				Camera.begin();
-			}
-			// Start Projection
+			Camera.begin();
 			{
 				ofDisableLighting();
 				{
-					GridPlane.drawVertices();
+					if ( !select )
+					{
+						GridPlane.drawVertices();
+					}
 
 					ofSetColor( 255, 255, 255 );
 					int nodenum = 0;
@@ -311,11 +300,40 @@ void ofApp::DrawFrame( bool select )
 					{
 						if ( nodenum == SelectedNode )
 						{
-							ofSetColor( 0, 255, 0 );
+							ofSetLineWidth( 100 );
+							float length = 200;
+
+							// Forward Axis
+							DrawFrame_SelectOnly_Shader_Begin( select, 253 );
+							{
+								ofSetColor( ofColor::blue );
+								ofDrawLine( node.getPosition(), node.getPosition() + ( node.getLookAtDir() * length ) );
+							}
+							DrawFrame_SelectOnly_Shader_End( select );
+
+							// Right Axis
+							DrawFrame_SelectOnly_Shader_Begin( select, 254 );
+							{
+								ofSetColor( ofColor::red );
+								ofDrawLine( node.getPosition(), node.getPosition() + ( node.getSideDir() * length ) );
+							}
+							DrawFrame_SelectOnly_Shader_End( select );
+
+							// Up Axis
+							DrawFrame_SelectOnly_Shader_Begin( select, 255 );
+							{
+								ofSetColor( ofColor::green );
+								ofDrawLine( node.getPosition(), node.getPosition() + ( node.getUpDir() * -length ) );
+							}
+							DrawFrame_SelectOnly_Shader_End( select );
 						}
-						glPushName( nodenum + 1 );
-						node.draw();
-						glPopName();
+
+						DrawFrame_SelectOnly_Shader_Begin( select, 1 + nodenum );
+						{
+							node.draw();
+						}
+						DrawFrame_SelectOnly_Shader_End( select );
+
 						ofSetColor( 255, 255, 255 );
 						nodenum++;
 					}
@@ -323,24 +341,36 @@ void ofApp::DrawFrame( bool select )
 				ofEnableLighting();
 
 				ofSetColor( 255, 0, 0 );
-				ofFill();
-				glPushName( 0 );
-				Box_Test.draw();
-				glPopName();
+				DrawFrame_SelectOnly_Shader_Begin( select, 0 );
+				{
+					Box_Test.draw();
+				}
+				DrawFrame_SelectOnly_Shader_End( select );
 
 				Light_Directional.draw();
 			}
-			// Stop Projection
-			if ( !select )
-			{
-				Camera.end();
-			}
+			Camera.end();
 			// Stop Projection
 		}
 	}
 	ofDisableDepthTest();
 
 	ofSetColor( 255 );
+}
+
+void ofApp::DrawFrame_SelectOnly_Shader_Begin( bool select, int name )
+{
+	if ( !select ) return;
+
+	shader.begin();
+	shader.setUniform1i( "name", name );
+}
+
+void ofApp::DrawFrame_SelectOnly_Shader_End( bool select )
+{
+	if ( !select ) return;
+
+	shader.end();
 }
 
 //--------------------------------------------------------------

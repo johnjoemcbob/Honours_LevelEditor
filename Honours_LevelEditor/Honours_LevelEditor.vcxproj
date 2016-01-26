@@ -236,6 +236,10 @@ C:\OpenFrameworks\addons\ofxRay\src\ofxRay;%(AdditionalIncludeDirectories)</Addi
       <AdditionalIncludeDirectories>$(OF_ROOT)\libs\openFrameworksCompiled\project\vs</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="mouseselection.frag" />
+    <None Include="mouseselection.vert" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ProjectExtensions>
     <VisualStudio>

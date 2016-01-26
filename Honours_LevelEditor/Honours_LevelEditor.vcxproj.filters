@@ -93,6 +93,9 @@
     <Filter Include="addons\ofxRay\src\ofxRay">
       <UniqueIdentifier>{cfb8f868-73c5-4e05-a66b-36aa62415a91}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\shaders">
+      <UniqueIdentifier>{ee7e7999-f08c-4685-aa34-2b00164aeeb6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ofApp.h">
@@ -152,5 +155,13 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="icon.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="mouseselection.frag">
+      <Filter>src\shaders</Filter>
+    </None>
+    <None Include="mouseselection.vert">
+      <Filter>src\shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

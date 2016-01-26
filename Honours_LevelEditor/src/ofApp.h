@@ -6,7 +6,7 @@
 
 #define BUF_SIZE 512
 
-#define INPUT_SELECT 1
+#define INPUT_SELECT 0
 #define INPUT_CAMERA_ROTATE 2
 
 class ofApp : public ofBaseApp
@@ -30,13 +30,14 @@ class ofApp : public ofBaseApp
 
 	private:
 		void DrawFrame( bool select = false );
+		void DrawFrame_SelectOnly_Shader_Begin( bool select = false, int name = 0 );
+		void DrawFrame_SelectOnly_Shader_End( bool select = false );
 		int GetLowerKeyCode( int key );
 		void AddRouteNode( ofVec3f pos );
 
 		ofCamera Camera;
 		ofLight Light_Directional;
 		ofNode Node_Center;
-		ofVec2f CameraRotation;
 		ofVec2f LastMouse;
 		ofVec2f MouseLockPosition;
 		bool MouseReset;
@@ -44,7 +45,12 @@ class ofApp : public ofBaseApp
 		ofPlanePrimitive GridPlane;
 		ofBoxPrimitive Box_Test;
 		std::vector<ofSpherePrimitive> RouteNodes;
+
 		int SelectedNode;
+		bool Select;
+		int AxisSelected;
+
+		ofShader shader;
 
 		bool KeyPressed[3000];
 };
