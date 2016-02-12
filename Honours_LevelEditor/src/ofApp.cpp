@@ -99,6 +99,7 @@ void ofApp::draw()
 		glReadPixels( mouseX, ofGetViewportHeight() - mouseY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &colour );
 
 		// Handle selection logic
+		printf( "%i\n", colour[0] );
 		if ( colour[0] < 253 )
 		{
 			// Is an object
@@ -184,27 +185,43 @@ void ofApp::mouseDragged( int x, int y, int button )
 	// Move selected object along its axis if it was dragged
 	if ( AxisSelected >= 0 )
 	{
+		// Idea 1:
+		// - Map direction of axis from world space to screen space
+		// - Check mouse move direction against direction of axis
+		// Idea 2:
+		// - Project ray of mouse screen to world space
+		// - Find hit point on plane representing the axis direction
+
 		ofSpherePrimitive& node = RouteNodes.at( SelectedNode );
+
+		ofVec3f direction;
 
 		ofVec3f offset;
 		{
 			switch ( AxisSelected )
 			{
 				case 0:
-					offset = node.getLookAtDir() * distx;
+					//offset = node.getLookAtDir() * distx;
+					direction = Camera.worldToScreen( node.getLookAtDir(), ofGetCurrentViewport() );
 					break;
 				case 1:
-					offset = node.getSideDir() * distx;
+					//offset = node.getSideDir() * distx;
+					direction = Camera.worldToScreen( node.getSideDir(), ofGetCurrentViewport() );
 					break;
 				case 2:
-					offset = node.getUpDir() * disty;
+					//offset = node.getUpDir() * disty;
+					direction = Camera.worldToScreen( node.getUpDir(), ofGetCurrentViewport() );
 					break;
 				default:
 					break;
 			}
-
 		}
-		node.move( offset );
+		//node.move( offset );
+		ofVec3f center = Camera.worldToScreen( node.getPosition(), ofGetCurrentViewport() );
+		direction /= ofVec3f( ofGetViewportWidth(), ofGetViewportHeight(), 0 );
+		center /= ofVec3f( ofGetViewportWidth(), ofGetViewportHeight(), 0 );
+		printf( "%f %f\n", center.x, center.y );
+		printf( "%f %f\n", direction.x, direction.y );
 	}
 }
 
@@ -267,6 +284,8 @@ void ofApp::dragEvent( ofDragInfo dragInfo )
 //--------------------------------------------------------------
 void ofApp::DrawFrame( bool select )
 {
+	ofVec3f center, forward;
+
 	// Clear screen to gradient
 	if ( !select )
 	{
@@ -326,6 +345,12 @@ void ofApp::DrawFrame( bool select )
 								ofDrawLine( node.getPosition(), node.getPosition() + ( node.getUpDir() * -length ) );
 							}
 							DrawFrame_SelectOnly_Shader_End( select );
+
+							// Test for world to screenspace conversion
+							center = Camera.worldToScreen( node.getPosition(), ofGetCurrentViewport() );
+							forward = Camera.worldToScreen( node.getPosition() + ( node.getLookAtDir() * length ), ofGetCurrentViewport() );
+							//printf( "%f %f %f\n", center.x, center.y, center.z );
+							//printf( "%f %f %f\n", center.x, center.y, center.z );
 						}
 
 						DrawFrame_SelectOnly_Shader_Begin( select, 1 + nodenum );
@@ -356,6 +381,7 @@ void ofApp::DrawFrame( bool select )
 	ofDisableDepthTest();
 
 	ofSetColor( 255 );
+	ofRect( center.x, center.y, forward.x - center.x, forward.y - center.y );
 }
 
 void ofApp::DrawFrame_SelectOnly_Shader_Begin( bool select, int name )
