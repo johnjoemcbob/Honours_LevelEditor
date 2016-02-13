@@ -5,34 +5,6 @@
 //--------------------------------------------------------------
 void ofApp::setup()
 {
-	ofXml XML_LevelOutput;
-	XML_LevelOutput.addChild( "level" );
-	{
-		XML_LevelOutput.addChild( "route" );
-		XML_LevelOutput.setToChild( 0 );
-		{
-			XML_LevelOutput.addChild( "node" );
-			XML_LevelOutput.setToChild( 0 );
-			{
-				XML_LevelOutput.setAttribute( "x", "2.54" );
-				XML_LevelOutput.setAttribute( "y", "2.54" );
-				XML_LevelOutput.setAttribute( "z", "2.54" );
-			}
-			XML_LevelOutput.setToParent();
-
-			XML_LevelOutput.addChild( "node" );
-			XML_LevelOutput.setToChild( 1 );
-			{
-				XML_LevelOutput.setAttribute( "x", "4.54" );
-				XML_LevelOutput.setAttribute( "y", "2.54" );
-				XML_LevelOutput.setAttribute( "z", "2.54" );
-			}
-			XML_LevelOutput.setToParent();
-		}
-		XML_LevelOutput.setToParent();
-	}
-	XML_LevelOutput.save( "test.xml" );
-
 	// Init camera
 	ofEnableAlphaBlending();
 	Camera.setupPerspective();
@@ -59,6 +31,9 @@ void ofApp::setup()
 	AxisSelected = -1;
 
 	shader.load( "shaders/mouseselection.vert", "shaders/mouseselection.frag" );
+
+	// Load the initial stored analytic data (if it exists)
+	LoadAnalytics();
 }
 
 //--------------------------------------------------------------
@@ -84,6 +59,11 @@ void ofApp::update()
 	if ( KeyPressed['d'] )
 	{
 		Camera.move( Camera.getSideDir() * speed );
+	}
+	if ( KeyPressed['o'] )
+	{
+		SaveLevel();
+		KeyPressed['o'] = false;
 	}
 }
 
@@ -181,47 +161,71 @@ void ofApp::mouseDragged( int x, int y, int button )
 		}
 		LastMouse = ofVec2f( mouseX, mouseY );
 	}
-
 	// Move selected object along its axis if it was dragged
-	if ( AxisSelected >= 0 )
+	else if ( AxisSelected >= 0 )
 	{
-		// Idea 1:
-		// - Map direction of axis from world space to screen space
-		// - Check mouse move direction against direction of axis
-		// Idea 2:
-		// - Project ray of mouse screen to world space
-		// - Find hit point on plane representing the axis direction
-
 		ofSpherePrimitive& node = RouteNodes.at( SelectedNode );
 
-		ofVec3f direction;
+		// Reverse directions of movement on the x and y axes dependant on the camera's position respective to the moving object
+		float dirx = 1; // Red Axis (Right)
+		{
+			if ( Camera.getPosition().x <= node.getPosition().x )
+			{
+				//dirx = -1;
+			}
+		}
+		float diry = 1; // Green Axis (Up)
+		float dirz = 1; // Blue Axis (Forward)
+		{
+			if ( Camera.getPosition().z <= node.getPosition().z )
+			{
+				//dirz = -1;
+			}
+		}
 
+		ofVec3f direction;
 		ofVec3f offset;
 		{
 			switch ( AxisSelected )
 			{
-				case 0:
-					//offset = node.getLookAtDir() * distx;
-					direction = Camera.worldToScreen( node.getLookAtDir(), ofGetCurrentViewport() );
+				case 0: // Blue forward
+					offset = node.getLookAtDir();
+					direction = Camera.worldToScreen( node.getLookAtDir() * ofVec3f( 0, 0, dirz ), ofGetCurrentViewport() );
 					break;
-				case 1:
-					//offset = node.getSideDir() * distx;
-					direction = Camera.worldToScreen( node.getSideDir(), ofGetCurrentViewport() );
+				case 1: // Red right
+					offset = node.getSideDir();
+					direction = Camera.worldToScreen( node.getSideDir() * ofVec3f( dirx, 0, 0 ), ofGetCurrentViewport() );
 					break;
-				case 2:
-					//offset = node.getUpDir() * disty;
-					direction = Camera.worldToScreen( node.getUpDir(), ofGetCurrentViewport() );
+				case 2: // Green up
+					offset = node.getUpDir();
+					direction = Camera.worldToScreen( node.getUpDir() * ofVec3f( 0, diry, 0 ), ofGetCurrentViewport() );
 					break;
 				default:
 					break;
 			}
 		}
-		//node.move( offset );
+
+		// Calculate screen position
 		ofVec3f center = Camera.worldToScreen( node.getPosition(), ofGetCurrentViewport() );
 		direction /= ofVec3f( ofGetViewportWidth(), ofGetViewportHeight(), 0 );
 		center /= ofVec3f( ofGetViewportWidth(), ofGetViewportHeight(), 0 );
-		printf( "%f %f\n", center.x, center.y );
-		printf( "%f %f\n", direction.x, direction.y );
+
+		// Check the movement of the cursor in relation to the axis line
+		ofVec2f mousedir = LastMouse - ofVec2f( mouseX, mouseY );
+		float length = mousedir.length();
+		{
+			if ( length > 10 )
+			{
+				length = 10;
+			}
+		}
+		float directionamount = direction.dot( mousedir ) * length / 2;
+
+		// Move the object
+		node.move( offset * directionamount );
+
+		// Update lastmouse to this frame for mousedir calculation
+		LastMouse = ofVec2f( mouseX, mouseY );
 	}
 }
 
@@ -322,7 +326,7 @@ void ofApp::DrawFrame( bool select )
 							ofSetLineWidth( 100 );
 							float length = 200;
 
-							// Forward Axis
+							// Forward Axis (Blue)
 							DrawFrame_SelectOnly_Shader_Begin( select, 253 );
 							{
 								ofSetColor( ofColor::blue );
@@ -330,7 +334,7 @@ void ofApp::DrawFrame( bool select )
 							}
 							DrawFrame_SelectOnly_Shader_End( select );
 
-							// Right Axis
+							// Right Axis (Red)
 							DrawFrame_SelectOnly_Shader_Begin( select, 254 );
 							{
 								ofSetColor( ofColor::red );
@@ -338,19 +342,13 @@ void ofApp::DrawFrame( bool select )
 							}
 							DrawFrame_SelectOnly_Shader_End( select );
 
-							// Up Axis
+							// Up Axis (Green)
 							DrawFrame_SelectOnly_Shader_Begin( select, 255 );
 							{
 								ofSetColor( ofColor::green );
 								ofDrawLine( node.getPosition(), node.getPosition() + ( node.getUpDir() * -length ) );
 							}
 							DrawFrame_SelectOnly_Shader_End( select );
-
-							// Test for world to screenspace conversion
-							center = Camera.worldToScreen( node.getPosition(), ofGetCurrentViewport() );
-							forward = Camera.worldToScreen( node.getPosition() + ( node.getLookAtDir() * length ), ofGetCurrentViewport() );
-							//printf( "%f %f %f\n", center.x, center.y, center.z );
-							//printf( "%f %f %f\n", center.x, center.y, center.z );
 						}
 
 						DrawFrame_SelectOnly_Shader_Begin( select, 1 + nodenum );
@@ -364,24 +362,12 @@ void ofApp::DrawFrame( bool select )
 					}
 				}
 				ofEnableLighting();
-
-				ofSetColor( 255, 0, 0 );
-				DrawFrame_SelectOnly_Shader_Begin( select, 0 );
-				{
-					Box_Test.draw();
-				}
-				DrawFrame_SelectOnly_Shader_End( select );
-
-				Light_Directional.draw();
 			}
 			Camera.end();
 			// Stop Projection
 		}
 	}
 	ofDisableDepthTest();
-
-	ofSetColor( 255 );
-	ofRect( center.x, center.y, forward.x - center.x, forward.y - center.y );
 }
 
 void ofApp::DrawFrame_SelectOnly_Shader_Begin( bool select, int name )
@@ -426,4 +412,96 @@ void ofApp::AddRouteNode( ofVec3f pos )
 		node.setPosition( pos );
 	}
 	RouteNodes.push_back( node );
+}
+
+//--------------------------------------------------------------
+void ofApp::SaveLevel()
+{
+	ofXml XML_LevelOutput;
+	XML_LevelOutput.addChild( "level" );
+	{
+		XML_LevelOutput.addChild( "route" );
+		XML_LevelOutput.setToChild( 0 );
+		{
+			for ( int node = 0; node < RouteNodes.size(); node++ )
+			{
+				ofSpherePrimitive prim = RouteNodes.at( node );
+
+				XML_LevelOutput.addChild( "node" );
+				XML_LevelOutput.setToChild( node );
+				{
+					XML_LevelOutput.setAttribute( "x", std::to_string( prim.getPosition().x * SCALEFACTOR_EDITOR_TO_UNITY ) );
+					XML_LevelOutput.setAttribute( "y", std::to_string( prim.getPosition().y * SCALEFACTOR_EDITOR_TO_UNITY ) );
+					XML_LevelOutput.setAttribute( "z", std::to_string( prim.getPosition().z * SCALEFACTOR_EDITOR_TO_UNITY ) );
+				}
+				XML_LevelOutput.setToParent();
+			}
+		}
+		XML_LevelOutput.setToParent();
+	}
+	XML_LevelOutput.save( "test.xml" );
+}
+
+//--------------------------------------------------------------
+void ofApp::LoadAnalytics()
+{
+	// Read the raw data
+	ofFile file;
+	{
+		file.open( "testanalytic.xml" );
+		if ( !file.is_open() )
+		{
+			printf( "Error loading analytics xml file\n" );
+			return;
+		}
+	}
+	ofBuffer buffer = file.readToBuffer();
+
+	// Parse as xml
+	ofXml xml_analyticinput;
+	xml_analyticinput.loadFromBuffer( buffer.getText() );
+
+	// Application unique xml parsing (get the data from the tables)
+	ParseAnalytics( xml_analyticinput );
+}
+
+//--------------------------------------------------------------
+void ofApp::ParseAnalytics( ofXml xml_analyticinput )
+{
+	// Start at data path
+	xml_analyticinput.setToChild( 0 );
+
+	// Run through each data instance and extract information
+	int children = xml_analyticinput.getNumChildren();
+	for ( int child = 0; child < children; child++ )
+	{
+		// Go from Data to the current AnalyticDataIndividual instance
+		xml_analyticinput.setToChild( child );
+		{
+			// Get timestamp (first child)
+			string time;
+			{
+				xml_analyticinput.setToChild( 0 );
+				time = xml_analyticinput.getValue();
+				xml_analyticinput.setToParent();
+			}
+			// Get timestamp (second child)
+			string key;
+			{
+				xml_analyticinput.setToChild( 1 );
+				key = xml_analyticinput.getValue();
+				xml_analyticinput.setToParent();
+			}
+			// Get timestamp (third child)
+			string value;
+			{
+				xml_analyticinput.setToChild( 2 );
+				value = xml_analyticinput.getValue();
+				xml_analyticinput.setToParent();
+			}
+			printf( "%s %s %s\n", time.c_str(), key.c_str(), value.c_str() );
+		}
+		// Go from the current AnalyticDataIndividual to Data
+		xml_analyticinput.setToParent();
+	}
 }

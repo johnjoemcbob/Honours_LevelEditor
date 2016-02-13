@@ -9,6 +9,8 @@
 #define INPUT_SELECT 0
 #define INPUT_CAMERA_ROTATE 2
 
+#define SCALEFACTOR_EDITOR_TO_UNITY 1 / 100
+
 class ofApp : public ofBaseApp
 {
 	public:
@@ -34,6 +36,9 @@ class ofApp : public ofBaseApp
 		void DrawFrame_SelectOnly_Shader_End( bool select = false );
 		int GetLowerKeyCode( int key );
 		void AddRouteNode( ofVec3f pos );
+		void SaveLevel();
+		void LoadAnalytics();
+		void ParseAnalytics( ofXml xml_analyticinput );
 
 		ofCamera Camera;
 		ofLight Light_Directional;
