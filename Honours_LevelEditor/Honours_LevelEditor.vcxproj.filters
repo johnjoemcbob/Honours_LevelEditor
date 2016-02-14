@@ -7,30 +7,6 @@
     <ClCompile Include="src\main.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxBaseGui.cpp">
-      <Filter>addons\ofxGui\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxButton.cpp">
-      <Filter>addons\ofxGui\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxGuiGroup.cpp">
-      <Filter>addons\ofxGui\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxLabel.cpp">
-      <Filter>addons\ofxGui\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxPanel.cpp">
-      <Filter>addons\ofxGui\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxSlider.cpp">
-      <Filter>addons\ofxGui\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxSliderGroup.cpp">
-      <Filter>addons\ofxGui\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxToggle.cpp">
-      <Filter>addons\ofxGui\src</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxXmlSettings\src\ofxXmlSettings.cpp">
       <Filter>addons\ofxXmlSettings\src</Filter>
     </ClCompile>
@@ -43,23 +19,11 @@
     <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxXmlSettings\libs\tinyxmlparser.cpp">
       <Filter>addons\ofxXmlSettings\libs</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxRay\src\ofxRay\Base.cpp">
-      <Filter>addons\ofxRay\src\ofxRay</Filter>
+    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\ofxDatGui.cpp">
+      <Filter>addons\ofxDatGui\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxRay\src\ofxRay\Camera.cpp">
-      <Filter>addons\ofxRay\src\ofxRay</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxRay\src\ofxRay\Plane.cpp">
-      <Filter>addons\ofxRay\src\ofxRay</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxRay\src\ofxRay\Plane_fitToPoints.cpp">
-      <Filter>addons\ofxRay\src\ofxRay</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxRay\src\ofxRay\Projector.cpp">
-      <Filter>addons\ofxRay\src\ofxRay</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxRay\src\ofxRay\Ray.cpp">
-      <Filter>addons\ofxRay\src\ofxRay</Filter>
+    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\core\ofxDatGuiComponent.cpp">
+      <Filter>addons\ofxDatGui\src\core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -67,66 +31,36 @@
       <UniqueIdentifier>{d8376475-7454-4a24-b08a-aac121d3ad6f}</UniqueIdentifier>
     </Filter>
     <Filter Include="addons">
-      <UniqueIdentifier>{a44e7054-757b-4b5a-b44a-c5fdc4648a03}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="addons\ofxGui">
-      <UniqueIdentifier>{dabc53c1-cb8a-43de-8608-9ce1094570c6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="addons\ofxGui\src">
-      <UniqueIdentifier>{f851afbb-4b35-4702-ac98-45e7ffbcc2fa}</UniqueIdentifier>
+      <UniqueIdentifier>{61738eab-8f3b-47f6-8c83-88c46c5c747d}</UniqueIdentifier>
     </Filter>
     <Filter Include="addons\ofxXmlSettings">
-      <UniqueIdentifier>{97ec31ec-f8b5-4298-af9d-9ee9c1c2667e}</UniqueIdentifier>
+      <UniqueIdentifier>{99253cd8-51a0-4524-adac-7b045f3ae672}</UniqueIdentifier>
     </Filter>
     <Filter Include="addons\ofxXmlSettings\src">
-      <UniqueIdentifier>{9467cd1d-3ab9-45f4-a346-91b081343167}</UniqueIdentifier>
+      <UniqueIdentifier>{726bcec1-1f2d-4bb1-8c66-29b0d46e6f41}</UniqueIdentifier>
     </Filter>
     <Filter Include="addons\ofxXmlSettings\libs">
-      <UniqueIdentifier>{d586903a-c67f-4558-a4ea-c58b1c014119}</UniqueIdentifier>
+      <UniqueIdentifier>{4bb14560-8f8b-4062-8247-12ccf6a25624}</UniqueIdentifier>
     </Filter>
-    <Filter Include="addons\ofxRay">
-      <UniqueIdentifier>{3b6f8f32-4a55-4b55-96cb-9e19ca5755c5}</UniqueIdentifier>
+    <Filter Include="addons\ofxDatGui">
+      <UniqueIdentifier>{b62951ec-bd9f-45ea-a62b-c2411c452379}</UniqueIdentifier>
     </Filter>
-    <Filter Include="addons\ofxRay\src">
-      <UniqueIdentifier>{3500b373-7240-4bcf-b98f-f78570925798}</UniqueIdentifier>
+    <Filter Include="addons\ofxDatGui\src">
+      <UniqueIdentifier>{48f8455b-7a64-433d-843a-f9d58bf93437}</UniqueIdentifier>
     </Filter>
-    <Filter Include="addons\ofxRay\src\ofxRay">
-      <UniqueIdentifier>{cfb8f868-73c5-4e05-a66b-36aa62415a91}</UniqueIdentifier>
+    <Filter Include="addons\ofxDatGui\src\components">
+      <UniqueIdentifier>{55b2393d-b8fd-414c-82ab-7eb79922faba}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\shaders">
-      <UniqueIdentifier>{ee7e7999-f08c-4685-aa34-2b00164aeeb6}</UniqueIdentifier>
+    <Filter Include="addons\ofxDatGui\src\core">
+      <UniqueIdentifier>{de42da4e-4001-4cd8-a9e5-e0bc73b1321f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxDatGui\src\themes">
+      <UniqueIdentifier>{6767c60a-3ed4-431f-9937-81750ae6ecfd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ofApp.h">
       <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxBaseGui.h">
-      <Filter>addons\ofxGui\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxButton.h">
-      <Filter>addons\ofxGui\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxGui.h">
-      <Filter>addons\ofxGui\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxGuiGroup.h">
-      <Filter>addons\ofxGui\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxLabel.h">
-      <Filter>addons\ofxGui\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxPanel.h">
-      <Filter>addons\ofxGui\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxSlider.h">
-      <Filter>addons\ofxGui\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxSliderGroup.h">
-      <Filter>addons\ofxGui\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxToggle.h">
-      <Filter>addons\ofxGui\src</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxXmlSettings\src\ofxXmlSettings.h">
       <Filter>addons\ofxXmlSettings\src</Filter>
@@ -134,34 +68,68 @@
     <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxXmlSettings\libs\tinyxml.h">
       <Filter>addons\ofxXmlSettings\libs</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxRay\src\ofxRay.h">
-      <Filter>addons\ofxRay\src</Filter>
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\ofxDatGui.h">
+      <Filter>addons\ofxDatGui\src</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxRay\src\ofxRay\Base.h">
-      <Filter>addons\ofxRay\src\ofxRay</Filter>
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\components\ofxDatGui2dPad.h">
+      <Filter>addons\ofxDatGui\src\components</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxRay\src\ofxRay\Camera.h">
-      <Filter>addons\ofxRay\src\ofxRay</Filter>
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\components\ofxDatGuiButton.h">
+      <Filter>addons\ofxDatGui\src\components</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxRay\src\ofxRay\Plane.h">
-      <Filter>addons\ofxRay\src\ofxRay</Filter>
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\components\ofxDatGuiColorPicker.h">
+      <Filter>addons\ofxDatGui\src\components</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxRay\src\ofxRay\Projector.h">
-      <Filter>addons\ofxRay\src\ofxRay</Filter>
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\components\ofxDatGuiControls.h">
+      <Filter>addons\ofxDatGui\src\components</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxRay\src\ofxRay\Ray.h">
-      <Filter>addons\ofxRay\src\ofxRay</Filter>
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\components\ofxDatGuiFRM.h">
+      <Filter>addons\ofxDatGui\src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\components\ofxDatGuiGroups.h">
+      <Filter>addons\ofxDatGui\src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\components\ofxDatGuiLabel.h">
+      <Filter>addons\ofxDatGui\src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\components\ofxDatGuiMatrix.h">
+      <Filter>addons\ofxDatGui\src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\components\ofxDatGuiScrollView.h">
+      <Filter>addons\ofxDatGui\src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\components\ofxDatGuiSlider.h">
+      <Filter>addons\ofxDatGui\src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\components\ofxDatGuiTextInput.h">
+      <Filter>addons\ofxDatGui\src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\components\ofxDatGuiTextInputField.h">
+      <Filter>addons\ofxDatGui\src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\components\ofxDatGuiTimeGraph.h">
+      <Filter>addons\ofxDatGui\src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\core\ofxDatGuiComponent.h">
+      <Filter>addons\ofxDatGui\src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\core\ofxDatGuiConstants.h">
+      <Filter>addons\ofxDatGui\src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\core\ofxDatGuiEvents.h">
+      <Filter>addons\ofxDatGui\src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\core\ofxDatGuiIntObject.h">
+      <Filter>addons\ofxDatGui\src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\themes\ofxDatGuiTheme.h">
+      <Filter>addons\ofxDatGui\src\themes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\themes\ofxDatGuiThemes.h">
+      <Filter>addons\ofxDatGui\src\themes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="icon.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="mouseselection.frag">
-      <Filter>src\shaders</Filter>
-    </None>
-    <None Include="mouseselection.vert">
-      <Filter>src\shaders</Filter>
-    </None>
   </ItemGroup>
 </Project>

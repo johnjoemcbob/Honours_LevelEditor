@@ -95,9 +95,11 @@
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>C:\OpenFrameworks\addons\ofxGui\src;C:\OpenFrameworks\addons\ofxXmlSettings\src;C:\OpenFrameworks\addons\ofxXmlSettings\libs;
-C:\OpenFrameworks\addons\ofxRay\src;
-C:\OpenFrameworks\addons\ofxRay\src\ofxRay;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\OpenFrameworks\addons\ofxXmlSettings\src;C:\OpenFrameworks\addons\ofxXmlSettings\libs;
+C:\OpenFrameworks\addons\ofxDatGui\src;
+C:\OpenFrameworks\addons\ofxDatGui\src\components;
+C:\OpenFrameworks\addons\ofxDatGui\src\core;
+C:\OpenFrameworks\addons\ofxDatGui\src\themes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
@@ -117,9 +119,11 @@ C:\OpenFrameworks\addons\ofxRay\src\ofxRay;%(AdditionalIncludeDirectories)</Addi
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>C:\OpenFrameworks\addons\ofxGui\src;C:\OpenFrameworks\addons\ofxXmlSettings\src;C:\OpenFrameworks\addons\ofxXmlSettings\libs;
-C:\OpenFrameworks\addons\ofxRay\src;
-C:\OpenFrameworks\addons\ofxRay\src\ofxRay;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\OpenFrameworks\addons\ofxXmlSettings\src;C:\OpenFrameworks\addons\ofxXmlSettings\libs;
+C:\OpenFrameworks\addons\ofxDatGui\src;
+C:\OpenFrameworks\addons\ofxDatGui\src\components;
+C:\OpenFrameworks\addons\ofxDatGui\src\core;
+C:\OpenFrameworks\addons\ofxDatGui\src\themes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
@@ -139,9 +143,11 @@ C:\OpenFrameworks\addons\ofxRay\src\ofxRay;%(AdditionalIncludeDirectories)</Addi
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>C:\OpenFrameworks\addons\ofxGui\src;C:\OpenFrameworks\addons\ofxXmlSettings\src;C:\OpenFrameworks\addons\ofxXmlSettings\libs;
-C:\OpenFrameworks\addons\ofxRay\src;
-C:\OpenFrameworks\addons\ofxRay\src\ofxRay;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\OpenFrameworks\addons\ofxXmlSettings\src;C:\OpenFrameworks\addons\ofxXmlSettings\libs;
+C:\OpenFrameworks\addons\ofxDatGui\src;
+C:\OpenFrameworks\addons\ofxDatGui\src\components;
+C:\OpenFrameworks\addons\ofxDatGui\src\core;
+C:\OpenFrameworks\addons\ofxDatGui\src\themes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
@@ -164,9 +170,11 @@ C:\OpenFrameworks\addons\ofxRay\src\ofxRay;%(AdditionalIncludeDirectories)</Addi
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>C:\OpenFrameworks\addons\ofxGui\src;C:\OpenFrameworks\addons\ofxXmlSettings\src;C:\OpenFrameworks\addons\ofxXmlSettings\libs;
-C:\OpenFrameworks\addons\ofxRay\src;
-C:\OpenFrameworks\addons\ofxRay\src\ofxRay;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\OpenFrameworks\addons\ofxXmlSettings\src;C:\OpenFrameworks\addons\ofxXmlSettings\libs;
+C:\OpenFrameworks\addons\ofxDatGui\src;
+C:\OpenFrameworks\addons\ofxDatGui\src\components;
+C:\OpenFrameworks\addons\ofxDatGui\src\core;
+C:\OpenFrameworks\addons\ofxDatGui\src\themes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
@@ -183,20 +191,8 @@ C:\OpenFrameworks\addons\ofxRay\src\ofxRay;%(AdditionalIncludeDirectories)</Addi
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxBaseGui.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxButton.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxGuiGroup.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxLabel.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxPanel.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxSlider.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxSliderGroup.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxToggle.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxRay\src\ofxRay\Base.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxRay\src\ofxRay\Camera.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxRay\src\ofxRay\Plane.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxRay\src\ofxRay\Plane_fitToPoints.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxRay\src\ofxRay\Projector.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxRay\src\ofxRay\Ray.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\core\ofxDatGuiComponent.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\ofxDatGui.cpp" />
     <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxXmlSettings\libs\tinyxml.cpp" />
     <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxXmlSettings\libs\tinyxmlerror.cpp" />
     <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxXmlSettings\libs\tinyxmlparser.cpp" />
@@ -205,21 +201,26 @@ C:\OpenFrameworks\addons\ofxRay\src\ofxRay;%(AdditionalIncludeDirectories)</Addi
     <ClCompile Include="src\ofApp.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxBaseGui.h" />
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxButton.h" />
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxGui.h" />
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxGuiGroup.h" />
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxLabel.h" />
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxPanel.h" />
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxSlider.h" />
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxSliderGroup.h" />
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxGui\src\ofxToggle.h" />
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxRay\src\ofxRay.h" />
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxRay\src\ofxRay\Base.h" />
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxRay\src\ofxRay\Camera.h" />
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxRay\src\ofxRay\Plane.h" />
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxRay\src\ofxRay\Projector.h" />
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxRay\src\ofxRay\Ray.h" />
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\components\ofxDatGui2dPad.h" />
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\components\ofxDatGuiButton.h" />
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\components\ofxDatGuiColorPicker.h" />
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\components\ofxDatGuiControls.h" />
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\components\ofxDatGuiFRM.h" />
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\components\ofxDatGuiGroups.h" />
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\components\ofxDatGuiLabel.h" />
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\components\ofxDatGuiMatrix.h" />
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\components\ofxDatGuiScrollView.h" />
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\components\ofxDatGuiSlider.h" />
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\components\ofxDatGuiTextInput.h" />
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\components\ofxDatGuiTextInputField.h" />
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\components\ofxDatGuiTimeGraph.h" />
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\core\ofxDatGuiComponent.h" />
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\core\ofxDatGuiConstants.h" />
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\core\ofxDatGuiEvents.h" />
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\core\ofxDatGuiIntObject.h" />
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\ofxDatGui.h" />
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\themes\ofxDatGuiTheme.h" />
+    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\themes\ofxDatGuiThemes.h" />
     <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxXmlSettings\libs\tinyxml.h" />
     <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxXmlSettings\src\ofxXmlSettings.h" />
     <ClInclude Include="src\ofApp.h" />
@@ -235,10 +236,6 @@ C:\OpenFrameworks\addons\ofxRay\src\ofxRay;%(AdditionalIncludeDirectories)</Addi
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/D_DEBUG %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>$(OF_ROOT)\libs\openFrameworksCompiled\project\vs</AdditionalIncludeDirectories>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="mouseselection.frag" />
-    <None Include="mouseselection.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ProjectExtensions>

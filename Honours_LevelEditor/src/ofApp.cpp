@@ -16,17 +16,11 @@ void ofApp::setup()
 	Light_Directional.setPointLight();
 	Light_Directional.setPosition( ofVec3f( 0, -100, 0 ) );
 
-	// Setup orbit point as world center
-	Node_Center.setPosition( ofVec3f( 0, 0, 0 ) );
-
 	// Init grid plane
 	GridPlane.set( 10000, 10000 );
 	GridPlane.setMode( ofPrimitiveMode::OF_PRIMITIVE_POINTS );
 	GridPlane.setResolution( 100, 100 );
 	GridPlane.tilt( 90 );
-
-	// Init test box
-	Box_Test.set( 100 );
 
 	AxisSelected = -1;
 
@@ -34,11 +28,51 @@ void ofApp::setup()
 
 	// Load the initial stored analytic data (if it exists)
 	LoadAnalytics();
+
+	// Create GUI
+	GUI_Analytic = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
+	{
+		ofxDatGuiTheme* theme = GUI_Analytic->getDefaultTheme();
+		{
+			theme->font.size = 8;
+			theme->font.load();
+			theme->layout.width = 196;
+			theme->layout.breakHeight = 1080;
+		}
+		GUI_Analytic->setTheme( theme );
+		GUI_Analytic->onButtonEvent( this, &ofApp::Event_OnButton );
+		GUI_Analytic->setAutoDraw( false );
+
+		// Add Elements
+		{
+			GUI_Analytic->addLabel( "HONOURS LEVEL EDITOR" );
+			//
+			Button_Node_Add = GUI_Analytic->addButton( "- Create Path Node" );
+			//
+			ofxDatGuiFolder* folder_analytics = GUI_Analytic->addFolder( "Analytics" );
+			{
+				Graph_Jump_Start = folder_analytics->addValueGraph( "Jump Start", 0, 1 );
+				{
+					Graph_Jump_Start->setValue( 0, 0.1f );
+					Graph_Jump_Start->setValue( 0.2f, 0.2f );
+					Graph_Jump_Start->setValue( 0.4f, 0.5f );
+					Graph_Jump_Start->setValue( 0.6f, 0.6f );
+					Graph_Jump_Start->setValue( 0.8f, 0.6f );
+					Graph_Jump_Start->setValue( 1, 0 );
+					Graph_Jump_Start->setDrawMode( ofxDatGuiGraph::FILLED );
+					Graph_Jump_Start->setEnabled( false );
+				}
+			}
+			//
+			GUI_Analytic->addBreak();
+		}
+	}
 }
 
 //--------------------------------------------------------------
 void ofApp::update()
 {
+	// Update input
 	double speed = 100 * ofGetLastFrameTime();
 	if ( KeyPressed[OF_KEY_SHIFT] )
 	{
@@ -65,6 +99,8 @@ void ofApp::update()
 		SaveLevel();
 		KeyPressed['o'] = false;
 	}
+
+	GUI_Analytic->update();
 }
 
 //--------------------------------------------------------------
@@ -101,16 +137,19 @@ void ofApp::draw()
 }
 
 //--------------------------------------------------------------
+void ofApp::exit()
+{
+	// Cleanup GUI
+	delete GUI_Analytic;
+	GUI_Analytic = 0;
+}
+
+//--------------------------------------------------------------
 void ofApp::keyPressed( int key )
 {
 	key = GetLowerKeyCode( key );
 
 	KeyPressed[key] = true;
-
-	if ( key == 'e' )
-	{
-		AddRouteNode( Camera.getPosition() );
-	}
 }
 
 //--------------------------------------------------------------
@@ -368,6 +407,13 @@ void ofApp::DrawFrame( bool select )
 		}
 	}
 	ofDisableDepthTest();
+
+	// Draw GUI
+	ofDisableLighting();
+	{
+		GUI_Analytic->draw();
+	}
+	ofEnableLighting();
 }
 
 void ofApp::DrawFrame_SelectOnly_Shader_Begin( bool select, int name )
@@ -503,5 +549,14 @@ void ofApp::ParseAnalytics( ofXml xml_analyticinput )
 		}
 		// Go from the current AnalyticDataIndividual to Data
 		xml_analyticinput.setToParent();
+	}
+}
+
+//--------------------------------------------------------------
+void ofApp::Event_OnButton( ofxDatGuiButtonEvent event )
+{
+	if ( event.target == Button_Node_Add )
+	{
+		AddRouteNode( Camera.getPosition() );
 	}
 }

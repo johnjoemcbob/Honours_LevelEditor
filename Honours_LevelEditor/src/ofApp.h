@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxDatGui.h"
 
 #include <vector>
 
@@ -17,6 +18,7 @@ class ofApp : public ofBaseApp
 		void setup();
 		void update();
 		void draw();
+		void exit();
 
 		void keyPressed( int key );
 		void keyReleased( int key );
@@ -40,22 +42,32 @@ class ofApp : public ofBaseApp
 		void LoadAnalytics();
 		void ParseAnalytics( ofXml xml_analyticinput );
 
+		void Event_OnButton( ofxDatGuiButtonEvent event );
+
+		// Camera
 		ofCamera Camera;
-		ofLight Light_Directional;
 		ofNode Node_Center;
 		ofVec2f LastMouse;
 		ofVec2f MouseLockPosition;
 		bool MouseReset;
 
+		// Level objects
+		ofLight Light_Directional;
 		ofPlanePrimitive GridPlane;
-		ofBoxPrimitive Box_Test;
 		std::vector<ofSpherePrimitive> RouteNodes;
 
+		// Object selection data & shader
 		int SelectedNode;
 		bool Select;
 		int AxisSelected;
-
 		ofShader shader;
 
+		// Input
 		bool KeyPressed[3000];
+
+		// GUI
+		ofxDatGui* GUI_Analytic;
+		ofxDatGuiButton* Button_Node_Add;
+		ofxDatGuiValueGraph* Graph_Jump_Start;
+		ofxDatGuiWaveMonitor* test;
 };
