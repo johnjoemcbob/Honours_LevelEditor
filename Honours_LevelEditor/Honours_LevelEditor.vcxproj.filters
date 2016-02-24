@@ -25,6 +25,9 @@
     <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\core\ofxDatGuiComponent.cpp">
       <Filter>addons\ofxDatGui\src\core</Filter>
     </ClCompile>
+    <ClCompile Include="src\HeatMap.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -127,6 +130,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\themes\ofxDatGuiThemes.h">
       <Filter>addons\ofxDatGui\src\themes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HeatMap.h">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

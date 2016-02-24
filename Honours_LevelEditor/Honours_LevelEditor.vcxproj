@@ -197,6 +197,7 @@ C:\OpenFrameworks\addons\ofxDatGui\src\themes;%(AdditionalIncludeDirectories)</A
     <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxXmlSettings\libs\tinyxmlerror.cpp" />
     <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxXmlSettings\libs\tinyxmlparser.cpp" />
     <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxXmlSettings\src\ofxXmlSettings.cpp" />
+    <ClCompile Include="src\HeatMap.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\ofApp.cpp" />
   </ItemGroup>
@@ -223,6 +224,7 @@ C:\OpenFrameworks\addons\ofxDatGui\src\themes;%(AdditionalIncludeDirectories)</A
     <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\themes\ofxDatGuiThemes.h" />
     <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxXmlSettings\libs\tinyxml.h" />
     <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxXmlSettings\src\ofxXmlSettings.h" />
+    <ClInclude Include="src\HeatMap.h" />
     <ClInclude Include="src\ofApp.h" />
   </ItemGroup>
   <ItemGroup>

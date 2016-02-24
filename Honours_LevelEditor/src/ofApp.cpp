@@ -5,6 +5,9 @@
 //--------------------------------------------------------------
 void ofApp::setup()
 {
+	// Init time
+	CurrentTime = 0;
+
 	// Init camera
 	ofEnableAlphaBlending();
 	Camera.setupPerspective();
@@ -29,7 +32,40 @@ void ofApp::setup()
 	// Load the initial stored analytic data (if it exists)
 	LoadAnalytics();
 
-	// Create GUI
+	// Create heatmap
+	HeatMap.Initialize();
+	{
+		int count = 0;
+		{
+			for each ( AnalyticDataStruct data in AnalyticData )
+			{
+				if ( data.Key == "JumpStart" )
+				{
+					count++;
+				}
+			}
+		}
+		float* heatpositions = new float[4 * count];
+		{
+			int current = 0;
+			for each ( AnalyticDataStruct data in AnalyticData )
+			{
+				if ( data.Key == "JumpStart" )
+				{
+					float x = 0, y = 0, z = 0;
+					sscanf( data.Value.c_str(), "%f %f %f", &x, &y, &z );
+					heatpositions[current + 0] = x;
+					heatpositions[current + 1] = z;
+					heatpositions[current + 2] = y;
+					heatpositions[current + 3] = 1;
+					current += 4;
+				}
+			}
+		}
+		HeatMap.SetData( heatpositions, count );
+	}
+
+	// Create GUI (Last!)
 	GUI_Analytic = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
 	{
 		ofxDatGuiTheme* theme = GUI_Analytic->getDefaultTheme();
@@ -62,6 +98,11 @@ void ofApp::setup()
 					Graph_Jump_Start->setDrawMode( ofxDatGuiGraph::FILLED );
 					Graph_Jump_Start->setEnabled( false );
 				}
+				//
+				ofxDatGuiSlider* slider = folder_analytics->addSlider( "Heatmap Strength", 0.5f, 10 );
+				{
+					slider->bind( HeatMap.GetStrengthReference() );
+				}
 			}
 			//
 			GUI_Analytic->addBreak();
@@ -72,6 +113,9 @@ void ofApp::setup()
 //--------------------------------------------------------------
 void ofApp::update()
 {
+	// Update time
+	CurrentTime += ofGetLastFrameTime();
+
 	// Update input
 	double speed = 100 * ofGetLastFrameTime();
 	if ( KeyPressed[OF_KEY_SHIFT] )
@@ -101,6 +145,17 @@ void ofApp::update()
 	}
 
 	GUI_Analytic->update();
+	HeatMap.Update( CurrentTime );
+	//{
+	//	float *heatpositions = new float[4 * 5]{
+	//		sin( CurrentTime ) * 1, cos( CurrentTime ) * 1, 0, 1,
+	//		1, 0, 0, 1,
+	//		0, 0, 1, 1,
+	//		1, 0, 1, 1,
+	//		-2, 0, 0, 1
+	//	};
+	//	HeatMap.SetData( heatpositions, 5 );
+	//}
 }
 
 //--------------------------------------------------------------
@@ -354,6 +409,7 @@ void ofApp::DrawFrame( bool select )
 					if ( !select )
 					{
 						GridPlane.drawVertices();
+						HeatMap.Draw();
 					}
 
 					ofSetColor( 255, 255, 255 );
@@ -525,27 +581,34 @@ void ofApp::ParseAnalytics( ofXml xml_analyticinput )
 		xml_analyticinput.setToChild( child );
 		{
 			// Get timestamp (first child)
-			string time;
+			float time;
 			{
 				xml_analyticinput.setToChild( 0 );
-				time = xml_analyticinput.getValue();
+				time = xml_analyticinput.getFloatValue();
 				xml_analyticinput.setToParent();
 			}
-			// Get timestamp (second child)
+			// Get key (second child)
 			string key;
 			{
 				xml_analyticinput.setToChild( 1 );
 				key = xml_analyticinput.getValue();
 				xml_analyticinput.setToParent();
 			}
-			// Get timestamp (third child)
+			// Get value (third child)
 			string value;
 			{
 				xml_analyticinput.setToChild( 2 );
 				value = xml_analyticinput.getValue();
 				xml_analyticinput.setToParent();
 			}
-			printf( "%s %s %s\n", time.c_str(), key.c_str(), value.c_str() );
+			AnalyticDataStruct data;
+			{
+				data.Key = key;
+				data.Value = value;
+				data.Timestamp = time;
+			}
+			AnalyticData.push_back( data );
+			printf( "%f %s %s\n", time, key.c_str(), value.c_str() );
 		}
 		// Go from the current AnalyticDataIndividual to Data
 		xml_analyticinput.setToParent();

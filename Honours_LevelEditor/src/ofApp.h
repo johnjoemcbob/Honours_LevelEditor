@@ -5,12 +5,21 @@
 
 #include <vector>
 
+#include "HeatMap.h"
+
 #define BUF_SIZE 512
 
 #define INPUT_SELECT 0
 #define INPUT_CAMERA_ROTATE 2
 
 #define SCALEFACTOR_EDITOR_TO_UNITY 1 / 100
+
+typedef struct
+{
+	string Key;
+	string Value;
+	float Timestamp;
+} AnalyticDataStruct;
 
 class ofApp : public ofBaseApp
 {
@@ -44,6 +53,9 @@ class ofApp : public ofBaseApp
 
 		void Event_OnButton( ofxDatGuiButtonEvent event );
 
+		// Time
+		float CurrentTime;
+
 		// Camera
 		ofCamera Camera;
 		ofNode Node_Center;
@@ -55,6 +67,12 @@ class ofApp : public ofBaseApp
 		ofLight Light_Directional;
 		ofPlanePrimitive GridPlane;
 		std::vector<ofSpherePrimitive> RouteNodes;
+
+		// Analytics
+		std::vector<AnalyticDataStruct> AnalyticData;
+
+		// Heatmap
+		HeatMapClass HeatMap;
 
 		// Object selection data & shader
 		int SelectedNode;
