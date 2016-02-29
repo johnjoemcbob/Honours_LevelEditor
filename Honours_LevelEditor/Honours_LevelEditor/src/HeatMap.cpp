@@ -25,13 +25,14 @@ void HeatMapClass::Initialize()
 
 void HeatMapClass::Update( float time )
 {
-
+	Time = time;
 }
 
 void HeatMapClass::Draw()
 {
 	Shader.begin();
 	{
+		Shader.setUniform1f( "time", Time );
 		Shader.setUniform1f( "points", DataCount );
 		Shader.setUniform1f( "strength", Strength );
 

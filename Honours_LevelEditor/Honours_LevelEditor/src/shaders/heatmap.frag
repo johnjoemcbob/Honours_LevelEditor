@@ -1,5 +1,6 @@
 #version 120
 
+uniform float time;
 uniform float points;
 uniform float strength;
 uniform vec4 heatposition[100];
@@ -33,7 +34,7 @@ void main()
 	{
 		for ( int point = 0; point < points; point++ )
 		{
-			sum += quadCoord.w * smoothstep( 400 * strength, 0, distance( quadCoord.xy, heatposition[point].xy * 100 ) );
+			sum += quadCoord.w * smoothstep( ( 400 * strength ) + ( sin( time * 2 ) * 5 ), 0, distance( quadCoord.xy, heatposition[point].xy * 100 ) );
 		}
 	}
 	gl_FragColor = vec4( heat(sum), sum );

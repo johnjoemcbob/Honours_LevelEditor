@@ -27,7 +27,8 @@ void ofApp::setup()
 
 	AxisSelected = -1;
 
-	shader.load( "shaders/mouseselection.vert", "shaders/mouseselection.frag" );
+	Shader_Grid.load( "shaders/fadefrom.vert", "shaders/fadefrom.frag" );
+	Shader_Selection.load( "shaders/mouseselection.vert", "shaders/mouseselection.frag" );
 
 	// Load the initial stored analytic data (if it exists)
 	LoadAnalytics();
@@ -71,7 +72,7 @@ void ofApp::setup()
 		ofxDatGuiTheme* theme = GUI_Analytic->getDefaultTheme();
 		{
 			theme->font.size = 8;
-			theme->font.load();
+			//theme->font.load();
 			theme->layout.width = 196;
 			theme->layout.breakHeight = 1080;
 		}
@@ -87,7 +88,7 @@ void ofApp::setup()
 			//
 			ofxDatGuiFolder* folder_analytics = GUI_Analytic->addFolder( "Analytics" );
 			{
-				Graph_Jump_Start = folder_analytics->addValueGraph( "Jump Start", 0, 1 );
+				/*Graph_Jump_Start = folder_analytics->addValueGraph( "Jump Start", 0, 1 );
 				{
 					Graph_Jump_Start->setValue( 0, 0.1f );
 					Graph_Jump_Start->setValue( 0.2f, 0.2f );
@@ -97,7 +98,7 @@ void ofApp::setup()
 					Graph_Jump_Start->setValue( 1, 0 );
 					Graph_Jump_Start->setDrawMode( ofxDatGuiGraph::FILLED );
 					Graph_Jump_Start->setEnabled( false );
-				}
+				}*/
 				//
 				ofxDatGuiSlider* slider = folder_analytics->addSlider( "Heatmap Strength", 0.5f, 10 );
 				{
@@ -108,6 +109,10 @@ void ofApp::setup()
 			GUI_Analytic->addBreak();
 		}
 	}
+
+	// 
+	TestModel.loadModel( "models/castle.fbx" );
+	TestModel.setScale( 100, 100, 100 );
 }
 
 //--------------------------------------------------------------
@@ -239,8 +244,20 @@ void ofApp::mouseDragged( int x, int y, int button )
 		// Move camera by mouse drag amount
 		float speed = 1.0f / 10;
 		ofVec3f cameraforward = Camera.getLookAtDir();
-		cameraforward.rotate( distx * speed, Camera.getUpDir() );
-		cameraforward.rotate( disty * speed, Camera.getSideDir() );
+		{
+			// Rotate by mouse movement
+			cameraforward.rotate( distx * speed, Camera.getUpDir() );
+			// Clamp the y axis rotation
+			float yangchange = disty * speed;
+			{
+				float ang = cameraforward.angle( ofVec3f( 0, -1, 0 ) );
+				if ( ( ang + yangchange ) > CAMERA_MAX_Y )
+				{
+					yangchange = CAMERA_MAX_Y - ang;
+				}
+			}
+			cameraforward.rotate( yangchange, Camera.getSideDir() );
+		}
 		Camera.lookAt( Camera.getPosition() + cameraforward.normalize() );
 
 		// Offset by center of window
@@ -260,52 +277,41 @@ void ofApp::mouseDragged( int x, int y, int button )
 	{
 		ofSpherePrimitive& node = RouteNodes.at( SelectedNode );
 
-		// Reverse directions of movement on the x and y axes dependant on the camera's position respective to the moving object
-		float dirx = 1; // Red Axis (Right)
-		{
-			if ( Camera.getPosition().x <= node.getPosition().x )
-			{
-				//dirx = -1;
-			}
-		}
-		float diry = 1; // Green Axis (Up)
-		float dirz = 1; // Blue Axis (Forward)
-		{
-			if ( Camera.getPosition().z <= node.getPosition().z )
-			{
-				//dirz = -1;
-			}
-		}
-
-		ofVec3f direction;
+		// Different directions depending on axis selected
 		ofVec3f offset;
 		{
+			// Get different axis depending on selected
 			switch ( AxisSelected )
 			{
 				case 0: // Blue forward
 					offset = node.getLookAtDir();
-					direction = Camera.worldToScreen( node.getLookAtDir() * ofVec3f( 0, 0, dirz ), ofGetCurrentViewport() );
 					break;
 				case 1: // Red right
 					offset = node.getSideDir();
-					direction = Camera.worldToScreen( node.getSideDir() * ofVec3f( dirx, 0, 0 ), ofGetCurrentViewport() );
 					break;
 				case 2: // Green up
-					offset = node.getUpDir();
-					direction = Camera.worldToScreen( node.getUpDir() * ofVec3f( 0, diry, 0 ), ofGetCurrentViewport() );
+					offset = -node.getUpDir();
 					break;
 				default:
 					break;
 			}
 		}
 
-		// Calculate screen position
-		ofVec3f center = Camera.worldToScreen( node.getPosition(), ofGetCurrentViewport() );
-		direction /= ofVec3f( ofGetViewportWidth(), ofGetViewportHeight(), 0 );
-		center /= ofVec3f( ofGetViewportWidth(), ofGetViewportHeight(), 0 );
+		// Calculate direction of axis in screen space
+		ofVec2f direction = Camera.worldToScreen( node.getPosition() - offset, ofGetCurrentViewport() );
+		direction /= ofVec2f( ofGetViewportWidth(), ofGetViewportHeight() );
+
+		// Calculate the position of the object in screen space
+		ofVec2f position = Camera.worldToScreen( node.getPosition(), ofGetCurrentViewport() );
+		position /= ofVec2f( ofGetViewportWidth(), ofGetViewportHeight() );
+
+		// Get the direction vector from these two aspects
+		ofVec2f axisdir = direction - position;
+		axisdir.normalize();
 
 		// Check the movement of the cursor in relation to the axis line
 		ofVec2f mousedir = LastMouse - ofVec2f( mouseX, mouseY );
+		mousedir.y *= -1;
 		float length = mousedir.length();
 		{
 			if ( length > 10 )
@@ -313,10 +319,61 @@ void ofApp::mouseDragged( int x, int y, int button )
 				length = 10;
 			}
 		}
-		float directionamount = direction.dot( mousedir ) * length / 2;
+		float directionamount = axisdir.dot( mousedir ) * length / 2;
 
-		// Move the object
-		node.move( offset * directionamount );
+		// Check for snapping enabled
+		if ( KeyPressed[OF_KEY_SHIFT] )
+		{
+			if ( abs( directionamount ) > GRID_SNAP_FORCE )
+			{
+				// Get the length along this axis
+				ofVec3f nodedir = node.getPosition() * offset;
+				float length = nodedir.length();
+				if ( ( nodedir.x > 0 ) || ( nodedir.z > 0 ) )
+				{
+					length *= -1;
+				}
+
+				// Divide and floor to get closest minimum grid snap point on this axis
+				length = floor( length / GRID_SNAP_DISTANCE );
+
+				// Correct to move in the right direction (i.e. backwards or forwards along the vector)
+				if ( signbit( directionamount ) )
+				{
+					// Take 1 to move to the next grid point
+					length--;
+				}
+				else
+				{
+					// Plus 1 to move to the next grid point
+					length++;
+				}
+
+				// Move
+				length *= GRID_SNAP_DISTANCE;
+				ofVec3f pos = node.getPosition();
+				{
+					if ( offset.x != 0 )
+					{
+						pos.x = length;
+					}
+					if ( offset.y != 0 )
+					{
+						pos.y = -length;
+					}
+					if ( offset.z != 0 )
+					{
+						pos.z = length;
+					}
+				}
+				node.setPosition( pos );
+			}
+		}
+		else
+		{
+			// Move the object
+			node.move( offset * directionamount );
+		}
 
 		// Update lastmouse to this frame for mousedir calculation
 		LastMouse = ofVec2f( mouseX, mouseY );
@@ -397,6 +454,7 @@ void ofApp::DrawFrame( bool select )
 	ofSetColor( 255 );
 	ofFill();
 	ofEnableDepthTest();
+	ofEnableAlphaBlending();
 	{
 		ofEnableLighting();
 		Light_Directional.enable();
@@ -404,14 +462,23 @@ void ofApp::DrawFrame( bool select )
 			// Start Projection
 			Camera.begin();
 			{
+				// Draw level
+				//TestModel.drawFaces();
+				ofPushMatrix();
+				{
+					ofRotate( 90, 1, 0, 0 );
+					ofScale( 100, 100, 100 );
+					for ( int mesh = 0; mesh < 5; mesh ++ )
+					{
+						//TestModel.getMesh( mesh );
+						TestModel.getMesh( mesh ).draw();
+					}
+				}
+				ofPopMatrix();
+
+				// Draw nodes
 				ofDisableLighting();
 				{
-					if ( !select )
-					{
-						GridPlane.drawVertices();
-						HeatMap.Draw();
-					}
-
 					ofSetColor( 255, 255, 255 );
 					int nodenum = 0;
 					for each ( ofSpherePrimitive node in RouteNodes )
@@ -457,11 +524,31 @@ void ofApp::DrawFrame( bool select )
 					}
 				}
 				ofEnableLighting();
+
+				// Draw grid and heatmap last
+				ofDisableLighting();
+				{
+					if ( !select )
+					{
+						Shader_Grid.begin();
+						{
+							Shader_Grid.setUniform1f( "falloff", 5000 );
+							Shader_Grid.setUniform3f( "position", ofVec3f::zero() );
+							Shader_Grid.setUniform4f( "colour", ofColor::green );
+
+							GridPlane.drawVertices();
+						}
+						Shader_Grid.end();
+						HeatMap.Draw();
+					}
+				}
+				ofEnableLighting();
 			}
 			Camera.end();
 			// Stop Projection
 		}
 	}
+	ofDisableAlphaBlending();
 	ofDisableDepthTest();
 
 	// Draw GUI
@@ -476,15 +563,15 @@ void ofApp::DrawFrame_SelectOnly_Shader_Begin( bool select, int name )
 {
 	if ( !select ) return;
 
-	shader.begin();
-	shader.setUniform1i( "name", name );
+	Shader_Selection.begin();
+	Shader_Selection.setUniform1i( "name", name );
 }
 
 void ofApp::DrawFrame_SelectOnly_Shader_End( bool select )
 {
 	if ( !select ) return;
 
-	shader.end();
+	Shader_Selection.end();
 }
 
 //--------------------------------------------------------------

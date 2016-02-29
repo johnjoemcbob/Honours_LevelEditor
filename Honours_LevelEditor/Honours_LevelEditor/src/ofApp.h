@@ -2,6 +2,7 @@
 
 #include "ofMain.h"
 #include "ofxDatGui.h"
+#include "ofxAssimpModelLoader.h"
 
 #include <vector>
 
@@ -13,6 +14,11 @@
 #define INPUT_CAMERA_ROTATE 2
 
 #define SCALEFACTOR_EDITOR_TO_UNITY 1 / 100
+
+#define GRID_SNAP_FORCE 1
+#define GRID_SNAP_DISTANCE 100
+
+#define CAMERA_MAX_Y 178
 
 typedef struct
 {
@@ -66,6 +72,7 @@ class ofApp : public ofBaseApp
 		// Level objects
 		ofLight Light_Directional;
 		ofPlanePrimitive GridPlane;
+		ofShader Shader_Grid;
 		std::vector<ofSpherePrimitive> RouteNodes;
 
 		// Analytics
@@ -78,7 +85,7 @@ class ofApp : public ofBaseApp
 		int SelectedNode;
 		bool Select;
 		int AxisSelected;
-		ofShader shader;
+		ofShader Shader_Selection;
 
 		// Input
 		bool KeyPressed[3000];
@@ -86,6 +93,9 @@ class ofApp : public ofBaseApp
 		// GUI
 		ofxDatGui* GUI_Analytic;
 		ofxDatGuiButton* Button_Node_Add;
-		ofxDatGuiValueGraph* Graph_Jump_Start;
+		//ofxDatGuiValueGraph* Graph_Jump_Start;
 		ofxDatGuiWaveMonitor* test;
+
+		// Model loading
+		ofxAssimpModelLoader TestModel;
 };

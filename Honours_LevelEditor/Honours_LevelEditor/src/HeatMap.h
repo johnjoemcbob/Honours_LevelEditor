@@ -24,6 +24,8 @@ class HeatMapClass
 		ofPlanePrimitive Plane;
 		ofShader Shader;
 
+		float Time;
+
 		// Collections of 4 floats per data count
 		float* Data;
 		float DataCount;
