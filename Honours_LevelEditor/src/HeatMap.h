@@ -1,6 +1,10 @@
 #pragma once
 
+// Framework Header
 #include "ofMain.h"
+
+// Class for displaying heatmap data on a flat plane
+// Matthew Cormack
 
 class HeatMapClass
 {

@@ -37,11 +37,20 @@
     <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\core\ofxDatGuiComponent.cpp">
       <Filter>addons\ofxDatGui\src\core</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\libs\ofxSmartFont\ofxSmartFont.cpp">
-      <Filter>addons\ofxDatGui\src\libs\ofxSmartFont</Filter>
-    </ClCompile>
     <ClCompile Include="src\HeatMap.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SelectableObject.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SelectableMovableObject.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objects\Object_RouteNode.cpp">
+      <Filter>src\objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objects\Object_Model.cpp">
+      <Filter>src\objects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -49,58 +58,55 @@
       <UniqueIdentifier>{d8376475-7454-4a24-b08a-aac121d3ad6f}</UniqueIdentifier>
     </Filter>
     <Filter Include="addons">
-      <UniqueIdentifier>{25dba773-6dc3-4ebb-a263-2eef854576d1}</UniqueIdentifier>
+      <UniqueIdentifier>{dc10ab64-7229-406a-91be-ba61c620422e}</UniqueIdentifier>
     </Filter>
     <Filter Include="addons\ofxAssimpModelLoader">
-      <UniqueIdentifier>{9c72ee8b-db28-4f4f-8e90-05866cc0eea7}</UniqueIdentifier>
+      <UniqueIdentifier>{aad3b0d2-3f44-4db7-bce2-dbd54d68a295}</UniqueIdentifier>
     </Filter>
     <Filter Include="addons\ofxAssimpModelLoader\src">
-      <UniqueIdentifier>{57592de0-40e7-4be3-af31-87669c30b1ff}</UniqueIdentifier>
+      <UniqueIdentifier>{c1c4bd3f-bb55-45ed-b529-f74826cd65c3}</UniqueIdentifier>
     </Filter>
     <Filter Include="addons\ofxAssimpModelLoader\libs">
-      <UniqueIdentifier>{e4d69e79-c4ff-4ae6-a9c7-f8c223ad9180}</UniqueIdentifier>
+      <UniqueIdentifier>{5fe4a34c-0b4c-4915-9927-d945ffd1daed}</UniqueIdentifier>
     </Filter>
     <Filter Include="addons\ofxAssimpModelLoader\libs\assimp">
-      <UniqueIdentifier>{9342891e-f556-4ec6-9bfb-b198c3fefdfb}</UniqueIdentifier>
+      <UniqueIdentifier>{70c84ec1-8cce-440b-8cba-f50b454db94a}</UniqueIdentifier>
     </Filter>
     <Filter Include="addons\ofxAssimpModelLoader\libs\assimp\include">
-      <UniqueIdentifier>{a5fea3c2-e84f-4bad-ae0a-bfd0e56e8097}</UniqueIdentifier>
+      <UniqueIdentifier>{39c437c8-ec83-4d5d-b61e-d1fbfcdbc011}</UniqueIdentifier>
     </Filter>
     <Filter Include="addons\ofxAssimpModelLoader\libs\assimp\include\assimp">
-      <UniqueIdentifier>{4ff8768a-6674-4634-a70f-704e8c5d5e48}</UniqueIdentifier>
+      <UniqueIdentifier>{8ae8667b-38e6-4a91-b290-d837ba87575a}</UniqueIdentifier>
     </Filter>
     <Filter Include="addons\ofxAssimpModelLoader\libs\assimp\include\assimp\Compiler">
-      <UniqueIdentifier>{4291c1a7-c091-4683-ab51-9cbf1f33f655}</UniqueIdentifier>
+      <UniqueIdentifier>{cace9b1a-d805-4798-8c62-84fcb623183a}</UniqueIdentifier>
     </Filter>
     <Filter Include="addons\ofxXmlSettings">
-      <UniqueIdentifier>{9408bc0e-6ed9-472b-8686-d8450908383a}</UniqueIdentifier>
+      <UniqueIdentifier>{9bf929f0-7909-4e9f-8b8e-709fb453a529}</UniqueIdentifier>
     </Filter>
     <Filter Include="addons\ofxXmlSettings\src">
-      <UniqueIdentifier>{672526aa-9266-468a-8b26-062c2e50cf72}</UniqueIdentifier>
+      <UniqueIdentifier>{9bf6e8d7-d19c-49a9-9c43-d3b755d8a2f3}</UniqueIdentifier>
     </Filter>
     <Filter Include="addons\ofxXmlSettings\libs">
-      <UniqueIdentifier>{a3c6b2f0-43ba-49eb-9a01-d996ac75a9f4}</UniqueIdentifier>
+      <UniqueIdentifier>{49f67f74-d449-4987-9fc2-ca15e8a5b8ae}</UniqueIdentifier>
     </Filter>
     <Filter Include="addons\ofxDatGui">
-      <UniqueIdentifier>{bceeb3d4-b747-4b8f-9f43-51db9aa62e95}</UniqueIdentifier>
+      <UniqueIdentifier>{fe6284c0-560e-4601-9176-d7d2d1b31b8f}</UniqueIdentifier>
     </Filter>
     <Filter Include="addons\ofxDatGui\src">
-      <UniqueIdentifier>{5dd500c4-3553-4466-9a0d-0fc618b26554}</UniqueIdentifier>
+      <UniqueIdentifier>{af0dcd1d-61fc-4106-be78-88eea6a42f9f}</UniqueIdentifier>
     </Filter>
     <Filter Include="addons\ofxDatGui\src\components">
-      <UniqueIdentifier>{22bc7cb8-728b-4fd0-8aa1-933e7ba2f08c}</UniqueIdentifier>
+      <UniqueIdentifier>{57cee44a-a650-40fe-9550-f60d07a33e49}</UniqueIdentifier>
     </Filter>
     <Filter Include="addons\ofxDatGui\src\core">
-      <UniqueIdentifier>{7c4c3be6-6ae5-4610-a43f-e5f36eda3a9a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="addons\ofxDatGui\src\libs">
-      <UniqueIdentifier>{3db2a0c0-fbd1-414c-b12d-a5a109417976}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="addons\ofxDatGui\src\libs\ofxSmartFont">
-      <UniqueIdentifier>{1b4f1b53-e748-4af2-ba32-d5102cf4d9a7}</UniqueIdentifier>
+      <UniqueIdentifier>{84e2ec3c-d723-4377-882b-5baee1def75a}</UniqueIdentifier>
     </Filter>
     <Filter Include="addons\ofxDatGui\src\themes">
-      <UniqueIdentifier>{8d2a20da-0260-46c3-a478-b055d9c80b3a}</UniqueIdentifier>
+      <UniqueIdentifier>{7b9ae965-d07c-4c0e-9ac7-47b674f561b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\objects">
+      <UniqueIdentifier>{a187af09-0db9-47dc-a707-b7617725616b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -290,9 +296,6 @@
     <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\core\ofxDatGuiIntObject.h">
       <Filter>addons\ofxDatGui\src\core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\libs\ofxSmartFont\ofxSmartFont.h">
-      <Filter>addons\ofxDatGui\src\libs\ofxSmartFont</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\themes\ofxDatGuiTheme.h">
       <Filter>addons\ofxDatGui\src\themes</Filter>
     </ClInclude>
@@ -301,6 +304,18 @@
     </ClInclude>
     <ClInclude Include="src\HeatMap.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SelectableObject.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SelectableMovableObject.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\objects\Object_RouteNode.h">
+      <Filter>src\objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\objects\Object_Model.h">
+      <Filter>src\objects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

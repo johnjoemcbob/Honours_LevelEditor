@@ -99,8 +99,6 @@
 C:\OpenFrameworks\addons\ofxDatGui\src;
 C:\OpenFrameworks\addons\ofxDatGui\src\components;
 C:\OpenFrameworks\addons\ofxDatGui\src\core;
-C:\OpenFrameworks\addons\ofxDatGui\src\libs;
-C:\OpenFrameworks\addons\ofxDatGui\src\libs\ofxSmartFont;
 C:\OpenFrameworks\addons\ofxDatGui\src\themes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
@@ -126,8 +124,6 @@ C:\OpenFrameworks\addons\ofxAssimpModelLoader\libs\assimp\lib\vs\Win32\assimp.li
 C:\OpenFrameworks\addons\ofxDatGui\src;
 C:\OpenFrameworks\addons\ofxDatGui\src\components;
 C:\OpenFrameworks\addons\ofxDatGui\src\core;
-C:\OpenFrameworks\addons\ofxDatGui\src\libs;
-C:\OpenFrameworks\addons\ofxDatGui\src\libs\ofxSmartFont;
 C:\OpenFrameworks\addons\ofxDatGui\src\themes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -153,8 +149,6 @@ C:\OpenFrameworks\addons\ofxAssimpModelLoader\libs\assimp\lib\vs\x64\assimp.lib;
 C:\OpenFrameworks\addons\ofxDatGui\src;
 C:\OpenFrameworks\addons\ofxDatGui\src\components;
 C:\OpenFrameworks\addons\ofxDatGui\src\core;
-C:\OpenFrameworks\addons\ofxDatGui\src\libs;
-C:\OpenFrameworks\addons\ofxDatGui\src\libs\ofxSmartFont;
 C:\OpenFrameworks\addons\ofxDatGui\src\themes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -183,8 +177,6 @@ C:\OpenFrameworks\addons\ofxAssimpModelLoader\libs\assimp\lib\vs\Win32\assimp.li
 C:\OpenFrameworks\addons\ofxDatGui\src;
 C:\OpenFrameworks\addons\ofxDatGui\src\components;
 C:\OpenFrameworks\addons\ofxDatGui\src\core;
-C:\OpenFrameworks\addons\ofxDatGui\src\libs;
-C:\OpenFrameworks\addons\ofxDatGui\src\libs\ofxSmartFont;
 C:\OpenFrameworks\addons\ofxDatGui\src\themes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
@@ -208,7 +200,6 @@ C:\OpenFrameworks\addons\ofxAssimpModelLoader\libs\assimp\lib\vs\x64\assimp.lib;
     <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxAssimpModelLoader\src\ofxAssimpModelLoader.cpp" />
     <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxAssimpModelLoader\src\ofxAssimpTexture.cpp" />
     <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\core\ofxDatGuiComponent.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\libs\ofxSmartFont\ofxSmartFont.cpp" />
     <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\ofxDatGui.cpp" />
     <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxXmlSettings\libs\tinyxml.cpp" />
     <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxXmlSettings\libs\tinyxmlerror.cpp" />
@@ -216,7 +207,11 @@ C:\OpenFrameworks\addons\ofxAssimpModelLoader\libs\assimp\lib\vs\x64\assimp.lib;
     <ClCompile Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxXmlSettings\src\ofxXmlSettings.cpp" />
     <ClCompile Include="src\HeatMap.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\objects\Object_Model.cpp" />
+    <ClCompile Include="src\objects\Object_RouteNode.cpp" />
     <ClCompile Include="src\ofApp.cpp" />
+    <ClCompile Include="src\SelectableMovableObject.cpp" />
+    <ClCompile Include="src\SelectableObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxAssimpModelLoader\libs\assimp\include\assimp\ai_assert.h" />
@@ -277,14 +272,17 @@ C:\OpenFrameworks\addons\ofxAssimpModelLoader\libs\assimp\lib\vs\x64\assimp.lib;
     <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\core\ofxDatGuiConstants.h" />
     <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\core\ofxDatGuiEvents.h" />
     <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\core\ofxDatGuiIntObject.h" />
-    <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\libs\ofxSmartFont\ofxSmartFont.h" />
     <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\ofxDatGui.h" />
     <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\themes\ofxDatGuiTheme.h" />
     <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxDatGui\src\themes\ofxDatGuiThemes.h" />
     <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxXmlSettings\libs\tinyxml.h" />
     <ClInclude Include="..\..\..\..\..\..\OpenFrameworks\addons\ofxXmlSettings\src\ofxXmlSettings.h" />
     <ClInclude Include="src\HeatMap.h" />
+    <ClInclude Include="src\objects\Object_Model.h" />
+    <ClInclude Include="src\objects\Object_RouteNode.h" />
     <ClInclude Include="src\ofApp.h" />
+    <ClInclude Include="src\SelectableMovableObject.h" />
+    <ClInclude Include="src\SelectableObject.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(OF_ROOT)\libs\openFrameworksCompiled\project\vs\openframeworksLib.vcxproj">

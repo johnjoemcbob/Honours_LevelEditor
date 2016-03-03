@@ -1,24 +1,31 @@
 #pragma once
 
+// Framework Header
 #include "ofMain.h"
 #include "ofxDatGui.h"
 #include "ofxAssimpModelLoader.h"
 
+// C++ Header
 #include <vector>
 
+// Project Specific Header
 #include "HeatMap.h"
+#include "SelectableObject.h"
+#include "SelectableMovableObject.h"
+#include "objects/Object_RouteNode.h"
+#include "objects/Object_Model.h"
 
 #define BUF_SIZE 512
 
 #define INPUT_SELECT 0
 #define INPUT_CAMERA_ROTATE 2
 
-#define SCALEFACTOR_EDITOR_TO_UNITY 1 / 100
-
-#define GRID_SNAP_FORCE 1
-#define GRID_SNAP_DISTANCE 100
+#define SCALEFACTOR_UNITY_TO_EDITOR 128
+#define SCALEFACTOR_EDITOR_TO_UNITY 1 / SCALEFACTOR_UNITY_TO_EDITOR
 
 #define CAMERA_MAX_Y 178
+
+#define SELECT_OFFSET 4
 
 typedef struct
 {
@@ -56,6 +63,8 @@ class ofApp : public ofBaseApp
 		void SaveLevel();
 		void LoadAnalytics();
 		void ParseAnalytics( ofXml xml_analyticinput );
+		void LoadLevel();
+		void ParseLevel( ofXml xml_levelinput );
 
 		void Event_OnButton( ofxDatGuiButtonEvent event );
 
@@ -73,7 +82,7 @@ class ofApp : public ofBaseApp
 		ofLight Light_Directional;
 		ofPlanePrimitive GridPlane;
 		ofShader Shader_Grid;
-		std::vector<ofSpherePrimitive> RouteNodes;
+		std::vector<SelectableMovableObjectClass*> SelectableObjects;
 
 		// Analytics
 		std::vector<AnalyticDataStruct> AnalyticData;
@@ -88,14 +97,11 @@ class ofApp : public ofBaseApp
 		ofShader Shader_Selection;
 
 		// Input
-		bool KeyPressed[3000];
+		bool* KeyPressed;
 
 		// GUI
 		ofxDatGui* GUI_Analytic;
 		ofxDatGuiButton* Button_Node_Add;
-		//ofxDatGuiValueGraph* Graph_Jump_Start;
+		ofxDatGuiValueGraph* Graph_Jump_Start;
 		ofxDatGuiWaveMonitor* test;
-
-		// Model loading
-		ofxAssimpModelLoader TestModel;
 };

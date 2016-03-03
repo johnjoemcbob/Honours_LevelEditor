@@ -1,5 +1,7 @@
+// Assocciated Header
 #include "ofApp.h"
 
+// Framework Headers
 #include "ofXml.h"
 
 //--------------------------------------------------------------
@@ -16,8 +18,12 @@ void ofApp::setup()
 
 	// Init light
 	Light_Directional.enable();
-	Light_Directional.setPointLight();
-	Light_Directional.setPosition( ofVec3f( 0, -100, 0 ) );
+	Light_Directional.setDirectional();
+	Light_Directional.setPosition( ofVec3f( 0.5f, 1, 0.2f ) );
+	Light_Directional.setDiffuseColor( ofFloatColor::white );
+	Light_Directional.setAmbientColor( ofFloatColor::white );
+
+	ofSetGlobalAmbientColor( ofFloatColor::lightGrey );
 
 	// Init grid plane
 	GridPlane.set( 10000, 10000 );
@@ -32,6 +38,9 @@ void ofApp::setup()
 
 	// Load the initial stored analytic data (if it exists)
 	LoadAnalytics();
+
+	// Load the current level data (if it exists) - requires Shader_Selection to be loaded
+	LoadLevel();
 
 	// Create heatmap
 	HeatMap.Initialize();
@@ -72,7 +81,7 @@ void ofApp::setup()
 		ofxDatGuiTheme* theme = GUI_Analytic->getDefaultTheme();
 		{
 			theme->font.size = 8;
-			//theme->font.load();
+			theme->font.load();
 			theme->layout.width = 196;
 			theme->layout.breakHeight = 1080;
 		}
@@ -88,7 +97,7 @@ void ofApp::setup()
 			//
 			ofxDatGuiFolder* folder_analytics = GUI_Analytic->addFolder( "Analytics" );
 			{
-				/*Graph_Jump_Start = folder_analytics->addValueGraph( "Jump Start", 0, 1 );
+				Graph_Jump_Start = folder_analytics->addValueGraph( "Jump Start", 0, 1 );
 				{
 					Graph_Jump_Start->setValue( 0, 0.1f );
 					Graph_Jump_Start->setValue( 0.2f, 0.2f );
@@ -98,7 +107,7 @@ void ofApp::setup()
 					Graph_Jump_Start->setValue( 1, 0 );
 					Graph_Jump_Start->setDrawMode( ofxDatGuiGraph::FILLED );
 					Graph_Jump_Start->setEnabled( false );
-				}*/
+				}
 				//
 				ofxDatGuiSlider* slider = folder_analytics->addSlider( "Heatmap Strength", 0.5f, 10 );
 				{
@@ -110,9 +119,20 @@ void ofApp::setup()
 		}
 	}
 
-	// 
-	TestModel.loadModel( "models/castle.fbx" );
-	TestModel.setScale( 100, 100, 100 );
+	// Initialize test model
+	ObjectModelClass* model = new ObjectModelClass();
+	{
+		model->Initialize( &Shader_Selection, "models/castle_wall.fbx" );
+		model->Camera = &Camera;
+		model->KeyPressed = &KeyPressed;
+		model->mouseX = &mouseX;
+		model->mouseY = &mouseY;
+		model->AxisSelected = &AxisSelected;
+	}
+	SelectableObjects.push_back( model );
+
+	// Initialize key presses
+	KeyPressed = new bool[3000] { false };
 }
 
 //--------------------------------------------------------------
@@ -151,16 +171,11 @@ void ofApp::update()
 
 	GUI_Analytic->update();
 	HeatMap.Update( CurrentTime );
-	//{
-	//	float *heatpositions = new float[4 * 5]{
-	//		sin( CurrentTime ) * 1, cos( CurrentTime ) * 1, 0, 1,
-	//		1, 0, 0, 1,
-	//		0, 0, 1, 1,
-	//		1, 0, 1, 1,
-	//		-2, 0, 0, 1
-	//	};
-	//	HeatMap.SetData( heatpositions, 5 );
-	//}
+
+	for each ( SelectableMovableObjectClass* obj in SelectableObjects )
+	{
+		obj->Update( CurrentTime );
+	}
 }
 
 //--------------------------------------------------------------
@@ -168,23 +183,18 @@ void ofApp::draw()
 {
 	if ( Select )
 	{
+		ofClear( ofColor::black );
 		DrawFrame( true );
 
-		// Read colour of clicked pixel to determine object
-		unsigned char colour[4];
-		glReadPixels( mouseX, ofGetViewportHeight() - mouseY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &colour );
-
-		// Handle selection logic
-		printf( "%i\n", colour[0] );
-		if ( colour[0] < 253 )
+		int node = SelectableObjectClass::CheckSelected( mouseX, mouseY );
+		if ( node < 3 )
 		{
-			// Is an object
-			SelectedNode = colour[0] - 1;
+			AxisSelected = node;
 		}
-		else
+		else if ( node > 3 )
 		{
-			// Is an axis for the currently selected object
-			AxisSelected = colour[0] - 253;
+			SelectedNode = node;
+			AxisSelected = -1;
 		}
 
 		// Flagged as true when the mouse is clicked
@@ -275,108 +285,15 @@ void ofApp::mouseDragged( int x, int y, int button )
 	// Move selected object along its axis if it was dragged
 	else if ( AxisSelected >= 0 )
 	{
-		ofSpherePrimitive& node = RouteNodes.at( SelectedNode );
 
-		// Different directions depending on axis selected
-		ofVec3f offset;
+	}
+
+	for each ( SelectableMovableObjectClass* obj in SelectableObjects )
+	{
+		if ( obj->GetSelected() )
 		{
-			// Get different axis depending on selected
-			switch ( AxisSelected )
-			{
-				case 0: // Blue forward
-					offset = node.getLookAtDir();
-					break;
-				case 1: // Red right
-					offset = node.getSideDir();
-					break;
-				case 2: // Green up
-					offset = -node.getUpDir();
-					break;
-				default:
-					break;
-			}
+			obj->OnDragged( x, y, button );
 		}
-
-		// Calculate direction of axis in screen space
-		ofVec2f direction = Camera.worldToScreen( node.getPosition() - offset, ofGetCurrentViewport() );
-		direction /= ofVec2f( ofGetViewportWidth(), ofGetViewportHeight() );
-
-		// Calculate the position of the object in screen space
-		ofVec2f position = Camera.worldToScreen( node.getPosition(), ofGetCurrentViewport() );
-		position /= ofVec2f( ofGetViewportWidth(), ofGetViewportHeight() );
-
-		// Get the direction vector from these two aspects
-		ofVec2f axisdir = direction - position;
-		axisdir.normalize();
-
-		// Check the movement of the cursor in relation to the axis line
-		ofVec2f mousedir = LastMouse - ofVec2f( mouseX, mouseY );
-		mousedir.y *= -1;
-		float length = mousedir.length();
-		{
-			if ( length > 10 )
-			{
-				length = 10;
-			}
-		}
-		float directionamount = axisdir.dot( mousedir ) * length / 2;
-
-		// Check for snapping enabled
-		if ( KeyPressed[OF_KEY_SHIFT] )
-		{
-			if ( abs( directionamount ) > GRID_SNAP_FORCE )
-			{
-				// Get the length along this axis
-				ofVec3f nodedir = node.getPosition() * offset;
-				float length = nodedir.length();
-				if ( ( nodedir.x > 0 ) || ( nodedir.z > 0 ) )
-				{
-					length *= -1;
-				}
-
-				// Divide and floor to get closest minimum grid snap point on this axis
-				length = floor( length / GRID_SNAP_DISTANCE );
-
-				// Correct to move in the right direction (i.e. backwards or forwards along the vector)
-				if ( signbit( directionamount ) )
-				{
-					// Take 1 to move to the next grid point
-					length--;
-				}
-				else
-				{
-					// Plus 1 to move to the next grid point
-					length++;
-				}
-
-				// Move
-				length *= GRID_SNAP_DISTANCE;
-				ofVec3f pos = node.getPosition();
-				{
-					if ( offset.x != 0 )
-					{
-						pos.x = length;
-					}
-					if ( offset.y != 0 )
-					{
-						pos.y = -length;
-					}
-					if ( offset.z != 0 )
-					{
-						pos.z = length;
-					}
-				}
-				node.setPosition( pos );
-			}
-		}
-		else
-		{
-			// Move the object
-			node.move( offset * directionamount );
-		}
-
-		// Update lastmouse to this frame for mousedir calculation
-		LastMouse = ofVec2f( mouseX, mouseY );
 	}
 }
 
@@ -392,6 +309,14 @@ void ofApp::mousePressed( int x, int y, int button )
 		ofHideCursor();
 		MouseLockPosition = ofVec2f( x, y );
 	}
+
+	for each ( SelectableMovableObjectClass* obj in SelectableObjects )
+	{
+		if ( obj->GetSelected() )
+		{
+			obj->OnPressed( x, y, button );
+		}
+	}
 }
 
 //--------------------------------------------------------------
@@ -404,18 +329,32 @@ void ofApp::mouseReleased( int x, int y, int button )
 
 	// No more axis moving
 	AxisSelected = -1;
+
+	for each ( SelectableMovableObjectClass* obj in SelectableObjects )
+	{
+		if ( obj->GetSelected() )
+		{
+			obj->OnReleased( x, y, button );
+		}
+	}
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseEntered( int x, int y )
 {
-
+	for each ( SelectableMovableObjectClass* obj in SelectableObjects )
+	{
+		obj->OnHover( x, y );
+	}
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseExited( int x, int y )
 {
-
+	for each ( SelectableMovableObjectClass* obj in SelectableObjects )
+	{
+		obj->OnUnHover( x, y );
+	}
 }
 
 //--------------------------------------------------------------
@@ -456,70 +395,32 @@ void ofApp::DrawFrame( bool select )
 	ofEnableDepthTest();
 	ofEnableAlphaBlending();
 	{
-		ofEnableLighting();
-		Light_Directional.enable();
+		//ofEnableLighting();
+		//Light_Directional.enable();
+		ofDisableLighting();
+		Light_Directional.disable();
 		{
 			// Start Projection
 			Camera.begin();
 			{
-				// Draw level
-				//TestModel.drawFaces();
-				ofPushMatrix();
-				{
-					ofRotate( 90, 1, 0, 0 );
-					ofScale( 100, 100, 100 );
-					for ( int mesh = 0; mesh < 5; mesh ++ )
-					{
-						//TestModel.getMesh( mesh );
-						TestModel.getMesh( mesh ).draw();
-					}
-				}
-				ofPopMatrix();
-
 				// Draw nodes
 				ofDisableLighting();
 				{
-					ofSetColor( 255, 255, 255 );
 					int nodenum = 0;
-					for each ( ofSpherePrimitive node in RouteNodes )
+					for each ( SelectableMovableObjectClass* node in SelectableObjects )
 					{
-						if ( nodenum == SelectedNode )
+						node->SetSelectName( SELECT_OFFSET + nodenum );
+						if ( node->GetSelectName() == SelectedNode )
 						{
-							ofSetLineWidth( 100 );
-							float length = 200;
-
-							// Forward Axis (Blue)
-							DrawFrame_SelectOnly_Shader_Begin( select, 253 );
-							{
-								ofSetColor( ofColor::blue );
-								ofDrawLine( node.getPosition(), node.getPosition() + ( node.getLookAtDir() * length ) );
-							}
-							DrawFrame_SelectOnly_Shader_End( select );
-
-							// Right Axis (Red)
-							DrawFrame_SelectOnly_Shader_Begin( select, 254 );
-							{
-								ofSetColor( ofColor::red );
-								ofDrawLine( node.getPosition(), node.getPosition() + ( node.getSideDir() * length ) );
-							}
-							DrawFrame_SelectOnly_Shader_End( select );
-
-							// Up Axis (Green)
-							DrawFrame_SelectOnly_Shader_Begin( select, 255 );
-							{
-								ofSetColor( ofColor::green );
-								ofDrawLine( node.getPosition(), node.getPosition() + ( node.getUpDir() * -length ) );
-							}
-							DrawFrame_SelectOnly_Shader_End( select );
+							node->SetSelected( true );
 						}
-
-						DrawFrame_SelectOnly_Shader_Begin( select, 1 + nodenum );
+						else
 						{
-							node.draw();
+							node->SetSelected( false );
 						}
-						DrawFrame_SelectOnly_Shader_End( select );
+						node->SetShader( &Shader_Selection );
+						node->Draw( select );
 
-						ofSetColor( 255, 255, 255 );
 						nodenum++;
 					}
 				}
@@ -534,7 +435,7 @@ void ofApp::DrawFrame( bool select )
 						{
 							Shader_Grid.setUniform1f( "falloff", 5000 );
 							Shader_Grid.setUniform3f( "position", ofVec3f::zero() );
-							Shader_Grid.setUniform4f( "colour", ofColor::green );
+							Shader_Grid.setUniform4f( "colour", ofColor::lightGrey );
 
 							GridPlane.drawVertices();
 						}
@@ -547,6 +448,7 @@ void ofApp::DrawFrame( bool select )
 			Camera.end();
 			// Stop Projection
 		}
+		Light_Directional.disable();
 	}
 	ofDisableAlphaBlending();
 	ofDisableDepthTest();
@@ -554,7 +456,16 @@ void ofApp::DrawFrame( bool select )
 	// Draw GUI
 	ofDisableLighting();
 	{
-		GUI_Analytic->draw();
+		DrawFrame_SelectOnly_Shader_Begin( select, 3 );
+		{
+			GUI_Analytic->draw();
+
+			for each ( SelectableMovableObjectClass* node in SelectableObjects )
+			{
+				node->DrawGUI( select );
+			}
+		}
+		DrawFrame_SelectOnly_Shader_End( select );
 	}
 	ofEnableLighting();
 }
@@ -595,12 +506,16 @@ int ofApp::GetLowerKeyCode( int key )
 //--------------------------------------------------------------
 void ofApp::AddRouteNode( ofVec3f pos )
 {
-	ofSpherePrimitive node;
+	ObjectRouteNodeClass* node = new ObjectRouteNodeClass();
 	{
-		node.set( 50, 4 );
-		node.setPosition( pos );
+		node->Initialize( &Shader_Selection );
+		node->Camera = &Camera;
+		node->KeyPressed = &KeyPressed;
+		node->mouseX = &mouseX;
+		node->mouseY = &mouseY;
+		node->AxisSelected = &AxisSelected;
 	}
-	RouteNodes.push_back( node );
+	SelectableObjects.push_back( (SelectableMovableObjectClass*) node );
 }
 
 //--------------------------------------------------------------
@@ -612,18 +527,21 @@ void ofApp::SaveLevel()
 		XML_LevelOutput.addChild( "route" );
 		XML_LevelOutput.setToChild( 0 );
 		{
-			for ( int node = 0; node < RouteNodes.size(); node++ )
+			int node = 0;
+			for each ( SelectableMovableObjectClass* prim in SelectableObjects )
 			{
-				ofSpherePrimitive prim = RouteNodes.at( node );
-
-				XML_LevelOutput.addChild( "node" );
-				XML_LevelOutput.setToChild( node );
+				if ( prim->GetType() == OBJECTTYPE_NODE )
 				{
-					XML_LevelOutput.setAttribute( "x", std::to_string( prim.getPosition().x * SCALEFACTOR_EDITOR_TO_UNITY ) );
-					XML_LevelOutput.setAttribute( "y", std::to_string( prim.getPosition().y * SCALEFACTOR_EDITOR_TO_UNITY ) );
-					XML_LevelOutput.setAttribute( "z", std::to_string( prim.getPosition().z * SCALEFACTOR_EDITOR_TO_UNITY ) );
+					XML_LevelOutput.addChild( "node" );
+					XML_LevelOutput.setToChild( node );
+					{
+						XML_LevelOutput.setAttribute( "x", std::to_string( prim->getPosition().x * SCALEFACTOR_EDITOR_TO_UNITY ) );
+						XML_LevelOutput.setAttribute( "y", std::to_string( prim->getPosition().y * SCALEFACTOR_EDITOR_TO_UNITY ) );
+						XML_LevelOutput.setAttribute( "z", std::to_string( prim->getPosition().z * SCALEFACTOR_EDITOR_TO_UNITY ) );
+					}
+					XML_LevelOutput.setToParent();
+					node++;
 				}
-				XML_LevelOutput.setToParent();
 			}
 		}
 		XML_LevelOutput.setToParent();
@@ -695,10 +613,151 @@ void ofApp::ParseAnalytics( ofXml xml_analyticinput )
 				data.Timestamp = time;
 			}
 			AnalyticData.push_back( data );
-			printf( "%f %s %s\n", time, key.c_str(), value.c_str() );
 		}
 		// Go from the current AnalyticDataIndividual to Data
 		xml_analyticinput.setToParent();
+	}
+}
+
+//--------------------------------------------------------------
+void ofApp::LoadLevel()
+{
+	// Read the raw data
+	ofFile file;
+	{
+		file.open( "testlevel.xml" );
+		if ( !file.is_open() )
+		{
+			printf( "Error loading level xml file\n" );
+			return;
+		}
+	}
+	ofBuffer buffer = file.readToBuffer();
+
+	// Parse as xml
+	ofXml xml_levelinput;
+	xml_levelinput.loadFromBuffer( buffer.getText() );
+
+	// Application unique xml parsing (get the data from the tables)
+	ParseLevel( xml_levelinput );
+}
+
+//--------------------------------------------------------------
+void ofApp::ParseLevel( ofXml xml_levelinput )
+{
+	// Start at data path
+	xml_levelinput.setToChild( 0 );
+
+	// Run through each data instance and extract information
+	int children = xml_levelinput.getNumChildren();
+	for ( int child = 0; child < children; child++ )
+	{
+		// Go from all level objects to the current level object instance
+		xml_levelinput.setToChild( child );
+		{
+			// Get timestamp (first child)
+			string mesh;
+			{
+				xml_levelinput.setToChild( 0 );
+				mesh = xml_levelinput.getValue();
+				xml_levelinput.setToParent();
+			}
+			// Get position (second child with 3 children)
+			ofVec3f position;
+			{
+				xml_levelinput.setToChild( 1 );
+				{
+					float x, y, z;
+					{
+						xml_levelinput.setToChild( 0 );
+						x = xml_levelinput.getFloatValue();
+						xml_levelinput.setToParent();
+
+						xml_levelinput.setToChild( 1 );
+						y = xml_levelinput.getFloatValue();
+						xml_levelinput.setToParent();
+
+						xml_levelinput.setToChild( 2 );
+						z = xml_levelinput.getFloatValue();
+						xml_levelinput.setToParent();
+					}
+					position = ofVec3f( x, -y, z ) * SCALEFACTOR_UNITY_TO_EDITOR;
+				}
+				xml_levelinput.setToParent();
+			}
+			// Get value (third child with 3 children)
+			ofVec3f rotation;
+			{
+				xml_levelinput.setToChild( 2 );
+				{
+					float x, y, z;
+					{
+						xml_levelinput.setToChild( 0 );
+						x = xml_levelinput.getFloatValue();
+						xml_levelinput.setToParent();
+
+						xml_levelinput.setToChild( 1 );
+						y = xml_levelinput.getFloatValue();
+						xml_levelinput.setToParent();
+
+						xml_levelinput.setToChild( 2 );
+						z = xml_levelinput.getFloatValue();
+						xml_levelinput.setToParent();
+					}
+					rotation = ofVec3f( x, y, z );
+				}
+				xml_levelinput.setToParent();
+			}
+
+			// Create and position this level element
+			//if ( mesh == "Wall" )
+			{
+				ObjectModelClass* model = new ObjectModelClass();
+				{
+					model->setPosition( position );
+					model->SetRotation( rotation );
+
+					if ( mesh == "Wall" || mesh == "Wall2" )
+					{
+						model->Initialize( &Shader_Selection, "models/castle_wall.fbx" );
+					}
+					else if ( mesh == "Wall_Corner" )
+					{
+						model->Initialize( &Shader_Selection, "models/castle_wallcorner.fbx" );
+					}
+					else if ( mesh == "GroundTile" )
+					{
+						model->Initialize( &Shader_Selection, "models/castle_ground.fbx" );
+						model->setScale( model->getScale() / 2 );
+					}
+					else if ( mesh == "Column" )
+					{
+						model->Initialize( &Shader_Selection, "models/castle_column.fbx" );
+					}
+					else if ( mesh == "Grass" )
+					{
+						model->Initialize( &Shader_Selection, "models/castle_grass.fbx" );
+					}
+					else if ( mesh == "Cube" )
+					{
+						model->Initialize( &Shader_Selection, "models/roundcube.fbx" );
+						model->setScale( model->getScale() / 2 );
+					}
+					else if ( mesh == "Gate_Big" )
+					{
+						model->Initialize( &Shader_Selection, "models/castle_gate_big.fbx" );
+					}
+					model->Camera = &Camera;
+					model->KeyPressed = &KeyPressed;
+					model->mouseX = &mouseX;
+					model->mouseY = &mouseY;
+					model->AxisSelected = &AxisSelected;
+				}
+				SelectableObjects.push_back( model );
+			}
+		}
+		// Go from the current level object back to all level objects
+		xml_levelinput.setToParent();
 	}
 }
 
