@@ -9,6 +9,9 @@ void ofApp::setup()
 {
 	// Init time
 	CurrentTime = 0;
+	RoundTime = 0;
+	RoundTimeSpeed = 1;
+	RoundTimeStep = false;
 
 	// Init camera
 	ofEnableAlphaBlending();
@@ -37,7 +40,8 @@ void ofApp::setup()
 	Shader_Selection.load( "shaders/mouseselection.vert", "shaders/mouseselection.frag" );
 
 	// Load the initial stored analytic data (if it exists)
-	LoadAnalytics();
+	//LoadAnalytics(); // Heatmaps
+	LoadAverageAnalytics();
 
 	// Load the current level data (if it exists) - requires Shader_Selection to be loaded
 	LoadLevel();
@@ -45,40 +49,14 @@ void ofApp::setup()
 	// Create heatmap
 	HeatMap.Initialize();
 	{
-		int count = 0;
-		{
-			for each ( AnalyticDataStruct data in AnalyticData )
-			{
-				if ( data.Key == "JumpStart" )
-				{
-					count++;
-				}
-			}
-		}
-		float* heatpositions = new float[4 * count];
-		{
-			int current = 0;
-			for each ( AnalyticDataStruct data in AnalyticData )
-			{
-				if ( data.Key == "JumpStart" )
-				{
-					float x = 0, y = 0, z = 0;
-					sscanf( data.Value.c_str(), "%f %f %f", &x, &y, &z );
-					heatpositions[current + 0] = x;
-					heatpositions[current + 1] = z;
-					heatpositions[current + 2] = y;
-					heatpositions[current + 3] = 1;
-					current += 4;
-				}
-			}
-		}
-		HeatMap.SetData( heatpositions, count );
+		//LoadHeatmapData( "EnemyPos" );
 	}
 
 	// Create GUI (Last!)
+	ofxDatGuiTheme* theme;
 	GUI_Analytic = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
 	{
-		ofxDatGuiTheme* theme = GUI_Analytic->getDefaultTheme();
+		theme = GUI_Analytic->getDefaultTheme();
 		{
 			theme->font.size = 8;
 			theme->font.load();
@@ -87,6 +65,7 @@ void ofApp::setup()
 		}
 		GUI_Analytic->setTheme( theme );
 		GUI_Analytic->onButtonEvent( this, &ofApp::Event_OnButton );
+		GUI_Analytic->onTextInputEvent( this, &ofApp::Event_OnTextInput );
 		GUI_Analytic->setAutoDraw( false );
 
 		// Add Elements
@@ -95,28 +74,55 @@ void ofApp::setup()
 			//
 			Button_Node_Add = GUI_Analytic->addButton( "- Create Path Node" );
 			//
-			ofxDatGuiFolder* folder_analytics = GUI_Analytic->addFolder( "Analytics" );
+			GUI_Folder_Analytics = GUI_Analytic->addFolder( "Analytics" );
 			{
-				Graph_Jump_Start = folder_analytics->addValueGraph( "Jump Start", 0, 1 );
-				{
-					Graph_Jump_Start->setValue( 0, 0.1f );
-					Graph_Jump_Start->setValue( 0.2f, 0.2f );
-					Graph_Jump_Start->setValue( 0.4f, 0.5f );
-					Graph_Jump_Start->setValue( 0.6f, 0.6f );
-					Graph_Jump_Start->setValue( 0.8f, 0.6f );
-					Graph_Jump_Start->setValue( 1, 0 );
-					Graph_Jump_Start->setDrawMode( ofxDatGuiGraph::FILLED );
-					Graph_Jump_Start->setEnabled( false );
-				}
-				//
-				ofxDatGuiSlider* slider = folder_analytics->addSlider( "Heatmap Strength", 0.5f, 10 );
+				AddAnalyticGraphs();
+			}
+			//
+			ofxDatGuiFolder* folder_timed = GUI_Analytic->addFolder( "Heatmap" );
+			{
+				ofxDatGuiSlider* slider = folder_timed->addSlider( "Heatmap Strength", 0.5f, 10, 0.5f );
 				{
 					slider->bind( HeatMap.GetStrengthReference() );
 				}
+				//
+				folder_timed->addLabel( "----- Heatmap Time -----" );
+				//
+				Button_Timed_Toggle = folder_timed->addButton( "- Toggle Timed" );
+				//
+				Button_TimeStep_Toggle = folder_timed->addButton( "- Toggle Time Step" );
+				//
+				ofxDatGuiSlider* slider_speed = folder_timed->addSlider( "Time Step Speed", -10, 10, 1 );
+				{
+					slider_speed->bind( RoundTimeSpeed );
+				}
+				//
+				ofxDatGuiSlider* slider_duration = folder_timed->addSlider( "Data Duration", 0.1f, 10, 1 );
+				{
+					slider_duration->bind( HeatMap.GetDurationReference() );
+				}
+				//
+				folder_timed->addLabel( "----- Heatmap Data -----" );
+				//
+				TextInput_HeatmapData = folder_timed->addTextInput( "Data Name", "EnemyPos" );
 			}
 			//
 			GUI_Analytic->addBreak();
 		}
+	}
+
+	// Create Time GUI (Last!)
+	GUI_RoundTime = new ofxDatGui( 0, ofGetHeight() - 24 );
+	{
+		ofxDatGuiTheme* theme_time = theme;
+		{
+			theme_time->layout.width = ofGetWidth();
+		}
+		GUI_RoundTime->setTheme( theme_time );
+		GUI_RoundTime->setAutoDraw( false );
+
+		ofxDatGuiSlider* slider = GUI_RoundTime->addSlider( "Round Time", 0, 1000, 0 );
+		slider->bind( RoundTime );
 	}
 
 	// Initialize test model
@@ -140,37 +146,22 @@ void ofApp::update()
 {
 	// Update time
 	CurrentTime += ofGetLastFrameTime();
+	if ( RoundTimeStep )
+	{
+		RoundTime += ofGetLastFrameTime() * RoundTimeSpeed;
+	}
 
 	// Update input
-	double speed = 100 * ofGetLastFrameTime();
-	if ( KeyPressed[OF_KEY_SHIFT] )
-	{
-		speed *= 10;
-	}
-	if ( KeyPressed['w'] )
-	{
-		Camera.move( Camera.getLookAtDir() * speed );
-	}
-	if ( KeyPressed['s'] )
-	{
-		Camera.move( -Camera.getLookAtDir() * speed );
-	}
-	if ( KeyPressed['a'] )
-	{
-		Camera.move( -Camera.getSideDir() * speed );
-	}
-	if ( KeyPressed['d'] )
-	{
-		Camera.move( Camera.getSideDir() * speed );
-	}
 	if ( KeyPressed['o'] )
 	{
 		SaveLevel();
 		KeyPressed['o'] = false;
 	}
+	UpdateCamera( MouseDragDistance.x, MouseDragDistance.y );
 
 	GUI_Analytic->update();
-	HeatMap.Update( CurrentTime );
+	GUI_RoundTime->update();
+	HeatMap.Update( RoundTime );
 
 	for each ( SelectableMovableObjectClass* obj in SelectableObjects )
 	{
@@ -212,6 +203,8 @@ void ofApp::exit()
 	// Cleanup GUI
 	delete GUI_Analytic;
 	GUI_Analytic = 0;
+	delete GUI_RoundTime;
+	GUI_RoundTime = 0;
 }
 
 //--------------------------------------------------------------
@@ -245,42 +238,12 @@ void ofApp::mouseDragged( int x, int y, int button )
 		LastMouse = ofVec2f( mouseX, mouseY );
 		return;
 	}
-	// Determine the difference in mouse positions since last frame
-	float distx = ( LastMouse.x - mouseX );
-	float disty = ( mouseY - LastMouse.y );
 
 	if ( button == INPUT_CAMERA_ROTATE )
 	{
-		// Move camera by mouse drag amount
-		float speed = 1.0f / 10;
-		ofVec3f cameraforward = Camera.getLookAtDir();
-		{
-			// Rotate by mouse movement
-			cameraforward.rotate( distx * speed, Camera.getUpDir() );
-			// Clamp the y axis rotation
-			float yangchange = disty * speed;
-			{
-				float ang = cameraforward.angle( ofVec3f( 0, -1, 0 ) );
-				if ( ( ang + yangchange ) > CAMERA_MAX_Y )
-				{
-					yangchange = CAMERA_MAX_Y - ang;
-				}
-			}
-			cameraforward.rotate( yangchange, Camera.getSideDir() );
-		}
-		Camera.lookAt( Camera.getPosition() + cameraforward.normalize() );
-
-		// Offset by center of window
-		float offx = ofGetWindowPositionX();
-		float offy = ofGetWindowPositionY();
-
-		// Confine cursor to area around click
-		if ( MouseLockPosition.distance( ofVec2f( mouseX, mouseY ) ) > 5 )
-		{
-			SetCursorPos( MouseLockPosition.x + offx, MouseLockPosition.y + offy );
-			MouseReset = true;
-		}
-		LastMouse = ofVec2f( mouseX, mouseY );
+		// Determine the difference in mouse positions since last frame
+		MouseDragDistance.x = ( LastMouse.x - mouseX );
+		MouseDragDistance.y = ( mouseY - LastMouse.y );
 	}
 	// Move selected object along its axis if it was dragged
 	else if ( AxisSelected >= 0 )
@@ -376,6 +339,73 @@ void ofApp::dragEvent( ofDragInfo dragInfo )
 }
 
 //--------------------------------------------------------------
+void ofApp::UpdateCamera( float distx, float disty )
+{
+	// Move camera by mouse drag amount
+	float speed = 10 * ofGetLastFrameTime();
+	ofVec3f cameraforward = Camera.getLookAtDir();
+	{
+		// Rotate by mouse movement
+		float xangchange = distx * speed;
+		float yangchange = disty * speed;
+		cameraforward.rotate( xangchange, Camera.getUpDir() );
+		// Clamp the y axis rotation
+		{
+			float ang = cameraforward.angle( ofVec3f( 0, -1, 0 ) );
+			if ( ( ang + yangchange ) > CAMERA_MAX_Y )
+			{
+				yangchange = CAMERA_MAX_Y - ang;
+			}
+		}
+		cameraforward.rotate( yangchange, Camera.getSideDir() );
+	}
+	Camera.lookAt( Camera.getPosition() + cameraforward.normalize() );
+
+	// Confine mouse
+	if ( ( MouseDragDistance.x != 0 ) || ( MouseDragDistance.y != 0 ) )
+	{
+		MouseDragDistance = ofVec2f::zero();
+
+		// Offset by center of window
+		float offx = ofGetWindowPositionX();
+		float offy = ofGetWindowPositionY();
+
+		// Confine cursor to area around click
+		if ( MouseLockPosition.distance( ofVec2f( mouseX, mouseY ) ) > 5 )
+		{
+			SetCursorPos( MouseLockPosition.x + offx, MouseLockPosition.y + offy );
+			MouseReset = true;
+		}
+	}
+
+	// Lerp camera rotation movement amount down to zero
+	MouseDragDistance += ( ofVec2f::zero() - MouseDragDistance ) * ofGetLastFrameTime() * 10;
+
+	// Move the camera using the keyboard
+	speed = 100 * ofGetLastFrameTime();
+	if ( KeyPressed[OF_KEY_SHIFT] )
+	{
+		speed *= 10;
+	}
+	if ( KeyPressed['w'] )
+	{
+		Camera.move( Camera.getLookAtDir() * speed );
+	}
+	if ( KeyPressed['s'] )
+	{
+		Camera.move( -Camera.getLookAtDir() * speed );
+	}
+	if ( KeyPressed['a'] )
+	{
+		Camera.move( -Camera.getSideDir() * speed );
+	}
+	if ( KeyPressed['d'] )
+	{
+		Camera.move( Camera.getSideDir() * speed );
+	}
+}
+
+//--------------------------------------------------------------
 void ofApp::DrawFrame( bool select )
 {
 	ofVec3f center, forward;
@@ -458,12 +488,13 @@ void ofApp::DrawFrame( bool select )
 	{
 		DrawFrame_SelectOnly_Shader_Begin( select, 3 );
 		{
-			GUI_Analytic->draw();
-
 			for each ( SelectableMovableObjectClass* node in SelectableObjects )
 			{
 				node->DrawGUI( select );
 			}
+
+			GUI_Analytic->draw();
+			GUI_RoundTime->draw();
 		}
 		DrawFrame_SelectOnly_Shader_End( select );
 	}
@@ -555,7 +586,7 @@ void ofApp::LoadAnalytics()
 	// Read the raw data
 	ofFile file;
 	{
-		file.open( "testanalytic.xml" );
+		file.open( "analytic_heatmap.xml" );
 		if ( !file.is_open() )
 		{
 			printf( "Error loading analytics xml file\n" );
@@ -563,6 +594,7 @@ void ofApp::LoadAnalytics()
 		}
 	}
 	ofBuffer buffer = file.readToBuffer();
+	file.close();
 
 	// Parse as xml
 	ofXml xml_analyticinput;
@@ -620,6 +652,124 @@ void ofApp::ParseAnalytics( ofXml xml_analyticinput )
 }
 
 //--------------------------------------------------------------
+void ofApp::LoadAverageAnalytics()
+{
+	// Read the raw data
+	ofFile file;
+	{
+		file.open( "analytic_overall.xml" );
+		if ( !file.is_open() )
+		{
+			printf( "Error loading analytic_overall.xml file\n" );
+			return;
+		}
+	}
+	ofBuffer buffer = file.readToBuffer();
+	file.close();
+
+	// Parse as xml
+	ofXml xml_analyticinput;
+	xml_analyticinput.loadFromBuffer( buffer.getText() );
+
+	// Application unique xml parsing (get the data from the tables)
+	ParseAverageAnalytics( xml_analyticinput );
+}
+
+//--------------------------------------------------------------
+void ofApp::ParseAverageAnalytics( ofXml xml_analyticinput )
+{
+	// Start at data path
+	xml_analyticinput.setToChild( 0 );
+
+	// Run through each data instance and extract information
+	int children = xml_analyticinput.getNumChildren();
+	for ( int child = 0; child < children; child++ )
+	{
+		// Go from Data to the current AnalyticDataIndividual instance
+		xml_analyticinput.setToChild( child );
+		{
+			// Get key (second child)
+			string key;
+			{
+				xml_analyticinput.setToChild( 0 );
+				key = xml_analyticinput.getValue();
+				xml_analyticinput.setToParent();
+			}
+			// Get value (third child)
+			float value;
+			{
+				xml_analyticinput.setToChild( 1 );
+				value = xml_analyticinput.getFloatValue();
+				xml_analyticinput.setToParent();
+			}
+			AnalyticDataStruct data;
+			{
+				data.Key = key;
+				data.Timestamp = value;
+			}
+			AnalyticOverallData.push_back( data );
+		}
+		// Go from the current AnalyticDataIndividual to Data
+		xml_analyticinput.setToParent();
+	}
+}
+
+//--------------------------------------------------------------
+void ofApp::AddAnalyticGraphs()
+{
+	// Each occurrence of key becomes a value spaced equally on graph
+	// Needs key, value (non-average)
+
+	// Get all possible names
+	vector<string> names;
+	{
+		names.push_back( "playerjump" );
+		names.push_back( "enemydie" );
+		names.push_back( "enemygate" );
+	}
+
+	// For each possible name find all occurrences and add to one graph
+	for each ( string name in names )
+	{
+		Graph_Jump_Start = GUI_Folder_Analytics->addValueGraph( name, 0, 1 );
+		{
+			// Find all occurrences within the overall data
+			float max = 0;
+			vector<float> positions;
+			{
+				for each ( AnalyticDataStruct data in AnalyticOverallData )
+				{
+					if ( data.Key == name )
+					{
+						positions.push_back( data.Timestamp );
+						// Get highest point for normalising
+						if ( data.Timestamp > max )
+						{
+							max = data.Timestamp;
+						}
+					}
+				}
+			}
+			// Add points to the graph
+			float num = 0;
+			for each ( float pos in positions )
+			{
+				float height = pos / max;
+				// Special logic for only having one data point
+				if ( positions.size() == 1 )
+				{
+					Graph_Jump_Start->setValue( 0, height );
+				}
+				Graph_Jump_Start->setValue( ( 1.0f / positions.size() ) * num, height );
+				num++;
+			}
+			Graph_Jump_Start->setDrawMode( ofxDatGuiGraph::FILLED );
+			Graph_Jump_Start->setEnabled( false );
+		}
+	}
+}
+
+//--------------------------------------------------------------
 void ofApp::LoadLevel()
 {
 	// Read the raw data
@@ -633,6 +783,7 @@ void ofApp::LoadLevel()
 		}
 	}
 	ofBuffer buffer = file.readToBuffer();
+	file.close();
 
 	// Parse as xml
 	ofXml xml_levelinput;
@@ -647,6 +798,13 @@ void ofApp::ParseLevel( ofXml xml_levelinput )
 {
 	// Start at data path
 	xml_levelinput.setToChild( 0 );
+
+	// Initialize possible model capacity
+	Models = new ofxAssimpModelLoader*[POSSIBLEMODELS];
+	for ( int model = 0; model < POSSIBLEMODELS; model++ )
+	{
+		Models[model] = 0;
+	}
 
 	// Run through each data instance and extract information
 	int children = xml_levelinput.getNumChildren();
@@ -710,42 +868,50 @@ void ofApp::ParseLevel( ofXml xml_levelinput )
 			}
 
 			// Create and position this level element
-			//if ( mesh == "Wall" )
+			if ( CanLoad( mesh ) )
 			{
 				ObjectModelClass* model = new ObjectModelClass();
 				{
 					model->setPosition( position );
 					model->SetRotation( rotation );
 
+					// Load
 					if ( mesh == "Wall" || mesh == "Wall2" )
 					{
-						model->Initialize( &Shader_Selection, "models/castle_wall.fbx" );
+						ofxAssimpModelLoader* loadmodel = LoadFirstModel( 0, "models/castle_wall.fbx" );
+						model->Initialize( &Shader_Selection, loadmodel );
 					}
 					else if ( mesh == "Wall_Corner" )
 					{
-						model->Initialize( &Shader_Selection, "models/castle_wallcorner.fbx" );
+						ofxAssimpModelLoader* loadmodel = LoadFirstModel( 1, "models/castle_wallcorner.fbx" );
+						model->Initialize( &Shader_Selection, loadmodel );
 					}
 					else if ( mesh == "GroundTile" )
 					{
-						model->Initialize( &Shader_Selection, "models/castle_ground.fbx" );
+						ofxAssimpModelLoader* loadmodel = LoadFirstModel( 2, "models/castle_ground.fbx" );
+						model->Initialize( &Shader_Selection, loadmodel );
 						model->setScale( model->getScale() / 2 );
 					}
 					else if ( mesh == "Column" )
 					{
-						model->Initialize( &Shader_Selection, "models/castle_column.fbx" );
+						ofxAssimpModelLoader* loadmodel = LoadFirstModel( 3, "models/castle_column.fbx" );
+						model->Initialize( &Shader_Selection, loadmodel );
 					}
 					else if ( mesh == "Grass" )
 					{
-						model->Initialize( &Shader_Selection, "models/castle_grass.fbx" );
+						ofxAssimpModelLoader* loadmodel = LoadFirstModel( 4, "models/castle_grass.fbx" );
+						model->Initialize( &Shader_Selection, loadmodel );
 					}
 					else if ( mesh == "Cube" )
 					{
-						model->Initialize( &Shader_Selection, "models/roundcube.fbx" );
+						ofxAssimpModelLoader* loadmodel = LoadFirstModel( 5, "models/roundcube.fbx" );
+						model->Initialize( &Shader_Selection, loadmodel );
 						model->setScale( model->getScale() / 2 );
 					}
 					else if ( mesh == "Gate_Big" )
 					{
-						model->Initialize( &Shader_Selection, "models/castle_gate_big.fbx" );
+						ofxAssimpModelLoader* loadmodel = LoadFirstModel( 6, "models/castle_gate_big.fbx" );
+						model->Initialize( &Shader_Selection, loadmodel );
 					}
 					model->Camera = &Camera;
 					model->KeyPressed = &KeyPressed;
@@ -762,10 +928,106 @@ void ofApp::ParseLevel( ofXml xml_levelinput )
 }
 
 //--------------------------------------------------------------
+bool ofApp::CanLoad( string model )
+{
+	bool found = false;
+	{
+		std::vector<string> models;
+		{
+			models.push_back( "Wall" );
+			models.push_back( "Wall2" );
+			models.push_back( "Wall_Corner" );
+			models.push_back( "GroundTile" );
+			models.push_back( "Column" );
+			models.push_back( "Grass" );
+			models.push_back( "Cube" );
+			models.push_back( "Gate_Big" );
+		}
+		for each ( string name in models )
+		{
+			if ( name == model )
+			{
+				found = true;
+				break;
+			}
+		}
+	}
+	return found;
+}
+
+//--------------------------------------------------------------
+ofxAssimpModelLoader* ofApp::LoadFirstModel( int id, string modelpath )
+{
+	// Has already loaded the model, return it now
+	if ( !Models[id] )
+	{
+		Models[id] = new ofxAssimpModelLoader();
+		Models[id]->loadModel( modelpath, true );
+	}
+
+	return Models[id];
+}
+
+//--------------------------------------------------------------
+void ofApp::LoadHeatmapData( string dataname )
+{
+	std::transform( dataname.begin(), dataname.end(), dataname.begin(), ::tolower );
+
+	int count = 0;
+	{
+		for each ( AnalyticDataStruct data in AnalyticData )
+		{
+			if ( data.Key == dataname )
+			{
+				count++;
+			}
+		}
+	}
+	if ( count > 0 )
+	{
+		float* heatpositions = new float[4 * count];
+		{
+			int current = 0;
+			for each ( AnalyticDataStruct data in AnalyticData )
+			{
+				if ( data.Key == dataname )
+				{
+					float x = 0, y = 0, z = 0;
+					sscanf( data.Value.c_str(), "%f %f %f", &x, &y, &z );
+					heatpositions[current + 0] = x;
+					heatpositions[current + 1] = z;
+					heatpositions[current + 2] = y;
+					heatpositions[current + 3] = data.Timestamp;
+					current += 4;
+				}
+			}
+		}
+		HeatMap.SetData( heatpositions, count );
+	}
+}
+
+//--------------------------------------------------------------
 void ofApp::Event_OnButton( ofxDatGuiButtonEvent event )
 {
 	if ( event.target == Button_Node_Add )
 	{
 		AddRouteNode( Camera.getPosition() );
+	}
+	else if ( event.target == Button_Timed_Toggle )
+	{
+		HeatMap.SetTimed( !HeatMap.GetTimed() );
+	}
+	else if ( event.target == Button_TimeStep_Toggle )
+	{
+		RoundTimeStep = !RoundTimeStep;
+	}
+}
+
+//--------------------------------------------------------------
+void ofApp::Event_OnTextInput( ofxDatGuiTextInputEvent event )
+{
+	if ( event.target == TextInput_HeatmapData )
+	{
+		LoadHeatmapData( event.text );
 	}
 }

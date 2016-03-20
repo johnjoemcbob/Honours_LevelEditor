@@ -19,7 +19,9 @@ void HeatMapClass::Initialize()
 	Plane.setResolution( 100, 100 );
 	Plane.tilt( 90 );
 
-	Strength = 1;
+	Strength = 0.5f;
+	Timed = false;
+	Duration = 1;
 
 	Shader.load( "shaders/heatmap.vert", "shaders/heatmap.frag" );
 }
@@ -33,6 +35,8 @@ void HeatMapClass::Draw()
 {
 	Shader.begin();
 	{
+		Shader.setUniform1i( "shouldtime", Timed );
+		Shader.setUniform1f( "duration", Duration );
 		Shader.setUniform1f( "time", Time );
 		Shader.setUniform1f( "points", DataCount );
 		Shader.setUniform1f( "strength", Strength );
@@ -47,7 +51,7 @@ void HeatMapClass::Draw()
 	Shader.end();
 }
 
-void HeatMapClass::SetData( float* data, float count )
+void HeatMapClass::SetData( float* data, int count )
 {
 	Data = data;
 	DataCount = count;

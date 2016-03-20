@@ -1,11 +1,17 @@
-#version 120
+#version 150
 
+#define MAXPOSITIONS 1000
+
+uniform int shouldtime;
+uniform float duration;
 uniform float time;
 uniform float points;
 uniform float strength;
-uniform vec4 heatposition[100];
+uniform vec4 heatposition[MAXPOSITIONS];
 
-varying vec4 quadCoord;
+in vec4 quadCoord;
+
+out vec4 fragColor;
 
 // Get colour from red (full) to blue (empty)
 vec3 heat( float v )
@@ -34,8 +40,9 @@ void main()
 	{
 		for ( int point = 0; point < points; point++ )
 		{
-			sum += quadCoord.w * smoothstep( ( 400 * strength ) + ( sin( time * 2 ) * 5 ), 0, distance( quadCoord.xy, heatposition[point].xy * 100 ) );
+			float timestrength = smoothstep( 1, 0, ( abs( time - heatposition[point].w ) / duration ) * shouldtime );
+			sum += quadCoord.w * smoothstep( ( 400 * strength ) + ( sin( time * 2 ) * 5 ), 0, distance( quadCoord.xy, heatposition[point].xy * 100 ) ) * timestrength;
 		}
 	}
-	gl_FragColor = vec4( heat(sum), sum );
+	fragColor = vec4( heat(sum), sum );
 }

@@ -7,6 +7,7 @@
 
 // C++ Header
 #include <vector>
+#include <algorithm>
 
 // Project Specific Header
 #include "HeatMap.h"
@@ -26,6 +27,8 @@
 #define CAMERA_MAX_Y 178
 
 #define SELECT_OFFSET 4
+
+#define POSSIBLEMODELS 7
 
 typedef struct
 {
@@ -55,6 +58,7 @@ class ofApp : public ofBaseApp
 		void gotMessage( ofMessage msg );
 
 	private:
+		void UpdateCamera( float distx, float disty );
 		void DrawFrame( bool select = false );
 		void DrawFrame_SelectOnly_Shader_Begin( bool select = false, int name = 0 );
 		void DrawFrame_SelectOnly_Shader_End( bool select = false );
@@ -63,17 +67,28 @@ class ofApp : public ofBaseApp
 		void SaveLevel();
 		void LoadAnalytics();
 		void ParseAnalytics( ofXml xml_analyticinput );
+		void LoadAverageAnalytics();
+		void ParseAverageAnalytics( ofXml xml_analyticinput );
+		void AddAnalyticGraphs();
 		void LoadLevel();
 		void ParseLevel( ofXml xml_levelinput );
+		bool CanLoad( string model );
+		ofxAssimpModelLoader* LoadFirstModel( int id, string modelpath );
+		void LoadHeatmapData( string dataname );
 
 		void Event_OnButton( ofxDatGuiButtonEvent event );
+		void Event_OnTextInput( ofxDatGuiTextInputEvent event );
 
 		// Time
 		float CurrentTime;
+		float RoundTime;
+		float RoundTimeSpeed;
+		bool RoundTimeStep;
 
 		// Camera
 		ofCamera Camera;
 		ofNode Node_Center;
+		ofVec2f MouseDragDistance;
 		ofVec2f LastMouse;
 		ofVec2f MouseLockPosition;
 		bool MouseReset;
@@ -84,8 +99,12 @@ class ofApp : public ofBaseApp
 		ofShader Shader_Grid;
 		std::vector<SelectableMovableObjectClass*> SelectableObjects;
 
+		// Model Loading
+		ofxAssimpModelLoader** Models;
+
 		// Analytics
 		std::vector<AnalyticDataStruct> AnalyticData;
+		std::vector<AnalyticDataStruct> AnalyticOverallData;
 
 		// Heatmap
 		HeatMapClass HeatMap;
@@ -101,7 +120,11 @@ class ofApp : public ofBaseApp
 
 		// GUI
 		ofxDatGui* GUI_Analytic;
+		ofxDatGuiFolder* GUI_Folder_Analytics;
 		ofxDatGuiButton* Button_Node_Add;
 		ofxDatGuiValueGraph* Graph_Jump_Start;
-		ofxDatGuiWaveMonitor* test;
+		ofxDatGuiButton* Button_Timed_Toggle;
+		ofxDatGuiButton* Button_TimeStep_Toggle;
+		ofxDatGuiTextInput* TextInput_HeatmapData;
+		ofxDatGui* GUI_RoundTime;
 };
