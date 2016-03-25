@@ -16,7 +16,7 @@ void HeatMapClass::Initialize()
 	// Init plane plane
 	Plane.set( 10000, 10000 );
 	Plane.setMode( ofPrimitiveMode::OF_PRIMITIVE_POINTS );
-	Plane.setResolution( 100, 100 );
+	Plane.setResolution( 1, 1 );
 	Plane.tilt( 90 );
 
 	Strength = 0.5f;

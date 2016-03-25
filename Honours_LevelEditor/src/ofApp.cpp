@@ -40,16 +40,46 @@ void ofApp::setup()
 	Shader_Selection.load( "shaders/mouseselection.vert", "shaders/mouseselection.frag" );
 
 	// Load the initial stored analytic data (if it exists)
-	//LoadAnalytics(); // Heatmaps
-	LoadAverageAnalytics();
+	printf( "Loading Heatmaps...\n" );
+	string dir_game1 = "../../game1/game1_Data/"; // For user testing
+	bool fileloaded_custom = LoadAnalytics(); // Heatmaps
+	if ( !fileloaded_custom )
+	{
+		printf( "Searching for replacement...\n" );
+		bool replace = LoadAnalytics( dir_game1 );
+		if ( !replace )
+		{
+			printf( "\nERROR: No replacement found; program will lack functionality without this file!\n\n" );
+		}
+		else
+		{
+			printf( "Found!\n" );
+		}
+	}
+	printf( "Loading Graphs...\n" );
+	fileloaded_custom = LoadAverageAnalytics();
+	if ( !fileloaded_custom )
+	{
+		printf( "Searching for replacement...\n" );
+		bool replace = LoadAverageAnalytics( dir_game1 );
+		if ( !replace )
+		{
+			printf( "\nERROR: No replacement found; program will lack functionality without this file!\n\n" );
+		}
+		else
+		{
+			printf( "Found!\n" );
+		}
+	}
 
 	// Load the current level data (if it exists) - requires Shader_Selection to be loaded
+	printf( "Loading Level...\n" );
 	LoadLevel();
 
 	// Create heatmap
 	HeatMap.Initialize();
 	{
-		//LoadHeatmapData( "EnemyPos" );
+		LoadHeatmapData( "EnemyPos" );
 	}
 
 	// Create GUI (Last!)
@@ -70,9 +100,9 @@ void ofApp::setup()
 
 		// Add Elements
 		{
-			GUI_Analytic->addLabel( "HONOURS LEVEL EDITOR" );
+			GUI_Analytic->addLabel( "HONOURS DASHBOARD" );
 			//
-			Button_Node_Add = GUI_Analytic->addButton( "- Create Path Node" );
+			//Button_Node_Add = GUI_Analytic->addButton( "- Create Path Node" );
 			//
 			GUI_Folder_Analytics = GUI_Analytic->addFolder( "Analytics" );
 			{
@@ -101,11 +131,27 @@ void ofApp::setup()
 				{
 					slider_duration->bind( HeatMap.GetDurationReference() );
 				}
-				//
-				folder_timed->addLabel( "----- Heatmap Data -----" );
-				//
-				TextInput_HeatmapData = folder_timed->addTextInput( "Data Name", "EnemyPos" );
 			}
+			//
+			ofxDatGuiFolder* folder_heatmapdata = GUI_Analytic->addFolder( "Heatmap Data" );
+			{
+				Button_HeatmapData.push_back( folder_heatmapdata->addButton( "- enemypos" ) );
+				Button_HeatmapData.push_back( folder_heatmapdata->addButton( "- enemydie" ) );
+				Button_HeatmapData.push_back( folder_heatmapdata->addButton( "- enemygate" ) );
+				Button_HeatmapData.push_back( folder_heatmapdata->addButton( "- playerpos" ) );
+				Button_HeatmapData.push_back( folder_heatmapdata->addButton( "- playerjumpstart" ) );
+				Button_HeatmapData.push_back( folder_heatmapdata->addButton( "- playerjumpend" ) );
+				Button_HeatmapData.push_back( folder_heatmapdata->addButton( "- playerwin" ) );
+				Button_HeatmapData.push_back( folder_heatmapdata->addButton( "- playerlose" ) );
+				Button_HeatmapData.push_back( folder_heatmapdata->addButton( "- projectilepos" ) );
+				TextInput_HeatmapData = folder_heatmapdata->addTextInput( "Data Name", "enemypos" );
+			}
+			//
+			GUI_Analytic->addLabel( "----- Controls -----" );
+			//
+			GUI_Analytic->addLabel( "Camera- Hold right mouse" );
+			//
+			GUI_Analytic->addLabel( "Movement- WASD" );
 			//
 			GUI_Analytic->addBreak();
 		}
@@ -126,16 +172,16 @@ void ofApp::setup()
 	}
 
 	// Initialize test model
-	ObjectModelClass* model = new ObjectModelClass();
-	{
-		model->Initialize( &Shader_Selection, "models/castle_wall.fbx" );
-		model->Camera = &Camera;
-		model->KeyPressed = &KeyPressed;
-		model->mouseX = &mouseX;
-		model->mouseY = &mouseY;
-		model->AxisSelected = &AxisSelected;
-	}
-	SelectableObjects.push_back( model );
+	//ObjectModelClass* model = new ObjectModelClass();
+	//{
+	//	model->Initialize( &Shader_Selection, "models/castle_wall.fbx" );
+	//	model->Camera = &Camera;
+	//	model->KeyPressed = &KeyPressed;
+	//	model->mouseX = &mouseX;
+	//	model->mouseY = &mouseY;
+	//	model->AxisSelected = &AxisSelected;
+	//}
+	//SelectableObjects.push_back( model );
 
 	// Initialize key presses
 	KeyPressed = new bool[3000] { false };
@@ -265,7 +311,7 @@ void ofApp::mousePressed( int x, int y, int button )
 {
 	if ( button == INPUT_SELECT )
 	{
-		Select = true;
+		//Select = true;
 	}
 	if ( button == INPUT_CAMERA_ROTATE )
 	{
@@ -581,20 +627,21 @@ void ofApp::SaveLevel()
 }
 
 //--------------------------------------------------------------
-void ofApp::LoadAnalytics()
+bool ofApp::LoadAnalytics( string dir )
 {
 	// Read the raw data
 	ofFile file;
 	{
-		file.open( "analytic_heatmap.xml" );
+		file.open( dir + "analytic_heatmap.xml" );
 		if ( !file.is_open() )
 		{
-			printf( "Error loading analytics xml file\n" );
-			return;
+			//printf( "Warning: %s/analytic_heatmap.xml file not found\n", dir.c_str() );
+			return false;
 		}
 	}
 	ofBuffer buffer = file.readToBuffer();
 	file.close();
+	printf( "Found file! Loading...\n" );
 
 	// Parse as xml
 	ofXml xml_analyticinput;
@@ -602,6 +649,8 @@ void ofApp::LoadAnalytics()
 
 	// Application unique xml parsing (get the data from the tables)
 	ParseAnalytics( xml_analyticinput );
+
+	return true;
 }
 
 //--------------------------------------------------------------
@@ -652,20 +701,21 @@ void ofApp::ParseAnalytics( ofXml xml_analyticinput )
 }
 
 //--------------------------------------------------------------
-void ofApp::LoadAverageAnalytics()
+bool ofApp::LoadAverageAnalytics( string dir )
 {
 	// Read the raw data
 	ofFile file;
 	{
-		file.open( "analytic_overall.xml" );
+		file.open( dir + "analytic_overall.xml" );
 		if ( !file.is_open() )
 		{
-			printf( "Error loading analytic_overall.xml file\n" );
-			return;
+			//printf( "Warning: %s/analytic_overall.xml file not found\n", dir.c_str() );
+			return false;
 		}
 	}
 	ofBuffer buffer = file.readToBuffer();
 	file.close();
+	printf( "Found file! Loading...\n" );
 
 	// Parse as xml
 	ofXml xml_analyticinput;
@@ -673,6 +723,8 @@ void ofApp::LoadAverageAnalytics()
 
 	// Application unique xml parsing (get the data from the tables)
 	ParseAverageAnalytics( xml_analyticinput );
+
+	return true;
 }
 
 //--------------------------------------------------------------
@@ -935,7 +987,7 @@ bool ofApp::CanLoad( string model )
 		std::vector<string> models;
 		{
 			models.push_back( "Wall" );
-			models.push_back( "Wall2" );
+			//models.push_back( "Wall2" );
 			models.push_back( "Wall_Corner" );
 			models.push_back( "GroundTile" );
 			models.push_back( "Column" );
@@ -1020,6 +1072,15 @@ void ofApp::Event_OnButton( ofxDatGuiButtonEvent event )
 	else if ( event.target == Button_TimeStep_Toggle )
 	{
 		RoundTimeStep = !RoundTimeStep;
+	}
+	for each ( ofxDatGuiButton* button in Button_HeatmapData )
+	{
+		if ( event.target == button )
+		{
+			string data = button->getLabel().replace( 0, 2, "" );
+			TextInput_HeatmapData->setText( data );
+			LoadHeatmapData( data );
+		}
 	}
 }
 

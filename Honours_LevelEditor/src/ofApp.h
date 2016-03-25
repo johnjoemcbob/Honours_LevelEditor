@@ -65,9 +65,9 @@ class ofApp : public ofBaseApp
 		int GetLowerKeyCode( int key );
 		void AddRouteNode( ofVec3f pos );
 		void SaveLevel();
-		void LoadAnalytics();
+		bool LoadAnalytics( string dir = "" );
 		void ParseAnalytics( ofXml xml_analyticinput );
-		void LoadAverageAnalytics();
+		bool LoadAverageAnalytics( string dir = "" );
 		void ParseAverageAnalytics( ofXml xml_analyticinput );
 		void AddAnalyticGraphs();
 		void LoadLevel();
@@ -125,6 +125,7 @@ class ofApp : public ofBaseApp
 		ofxDatGuiValueGraph* Graph_Jump_Start;
 		ofxDatGuiButton* Button_Timed_Toggle;
 		ofxDatGuiButton* Button_TimeStep_Toggle;
+		vector<ofxDatGuiButton*> Button_HeatmapData;
 		ofxDatGuiTextInput* TextInput_HeatmapData;
 		ofxDatGui* GUI_RoundTime;
 };

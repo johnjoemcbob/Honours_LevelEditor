@@ -1,17 +1,13 @@
-#version 150
-
-#define MAXPOSITIONS 1000
+#version 120
 
 uniform int shouldtime;
 uniform float duration;
 uniform float time;
 uniform float points;
 uniform float strength;
-uniform vec4 heatposition[MAXPOSITIONS];
+uniform vec4 heatposition[100];
 
-in vec4 quadCoord;
-
-out vec4 fragColor;
+varying vec4 quadCoord;
 
 // Get colour from red (full) to blue (empty)
 vec3 heat( float v )
@@ -23,9 +19,9 @@ vec3 heat( float v )
 		float influence = 0.5f + ( 0.5f * smoothstep( 0.0f, 0.1f, value ) );
 		{
 			// First give everything a red tinge
-			heatval.r += smoothstep( 0.5f, 0.3f, value );
+			heatval.r += 0.5f - smoothstep( 0.3f, 0.5f, value ) + 0.3f;
 			// Then give the middle bands a green tinge
-			heatval.g += value < 0.3f ? smoothstep( 0.0f, 0.3f, value ) : smoothstep( 1.0f, 0.6f, value );
+			heatval.g += value < 0.3f ? smoothstep( 0.0f, 0.3f, value ) : ( 1 - smoothstep( 0.6f, 1.0f, value ) + 0.6f );
 			// Finally the outer bands get a cold blue tinge
 			heatval.b += smoothstep( 0.4f, 0.6f, value );
 		}
@@ -40,9 +36,10 @@ void main()
 	{
 		for ( int point = 0; point < points; point++ )
 		{
-			float timestrength = smoothstep( 1, 0, ( abs( time - heatposition[point].w ) / duration ) * shouldtime );
-			sum += quadCoord.w * smoothstep( ( 400 * strength ) + ( sin( time * 2 ) * 5 ), 0, distance( quadCoord.xy, heatposition[point].xy * 100 ) ) * timestrength;
+			float timestrength = 1 - smoothstep( 0, 1, ( abs( time - heatposition[point].w ) / duration ) * shouldtime );
+			float max = ( 400 * strength ) + ( sin( time * 2 ) * 5 );
+			sum += quadCoord.w * ( max - smoothstep( 0, max, distance( quadCoord.xy, heatposition[point].xy * 100 ) ) * timestrength );
 		}
 	}
-	fragColor = vec4( heat(sum), sum );
+	gl_FragColor = vec4( heat(sum), sum );
 }
